@@ -1,0 +1,12 @@
+Airport Traffic Simulator developed by Richard Fujimoto (January, 2018)
+
+Files:
+engine.h	interface to simulation engine
+engine.c	code for simulation engine
+airport.c	application program for airport simulation
+
+To compile and run the program:
+
+cc airport.c engine.c
+./a.out
+

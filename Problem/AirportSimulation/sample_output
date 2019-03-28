@@ -1,0 +1,22 @@
+Welcome to the Airport Simulation
+Initial event list:
+Event List: 0.000157 
+Arrival Event: time=0.000157
+Arrival Event: time=2.820781
+Landed Event: time=5.000157
+Landed Event: time=10.000157
+Arrival Event: time=31.000197
+Landed Event: time=36.000197
+Arrival Event: time=43.273987
+Landed Event: time=48.273987
+Arrival Event: time=58.492542
+Landed Event: time=63.492542
+Departure Event: time=75.000157
+Departure Event: time=80.000157
+Departure Event: time=106.000197
+Departure Event: time=118.273987
+Departure Event: time=133.492542
+Number of aircraft = 5
+Total waiting time = 2.179376
+Average waiting time = 0.435875
+15 events executed in 0.000037 seconds (405405.405405 events per second)
