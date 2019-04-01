@@ -9,9 +9,6 @@ from __future__ import division
 from heapq import heappush, heappop
 import time
 #Graphing and Analysis imports
-import matplotlib
-matplotlib.use('Agg')
-import matplotlib.pyplot as plt
 import numpy as np
 #import scipy
 #import scipy.stats as stats
@@ -72,13 +69,13 @@ def getHistoricalEvents():
     global rightTurnChance
     events = {}
 
-    with open('trajectories0.json') as json_data:
+    with open('../Data/trajectories0.json') as json_data:
         events = json.load(json_data)
         
-    with open('trajectories1.json') as json_data:
+    with open('../Data/trajectories1.json') as json_data:
         events.update(json.load(json_data))
         
-    with open('trajectories2.json') as json_data:
+    with open('../Data/trajectories2.json') as json_data:
         events.update(json.load(json_data))
     
     numEvents = len(events.keys())
