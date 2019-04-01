@@ -77,6 +77,12 @@ def getHistoricalEvents():
         
     with open('../Data/trajectories2.json') as json_data:
         events.update(json.load(json_data))
+            
+    with open('../Data/trajectories3.json') as json_data:
+        events.update(json.load(json_data))
+            
+    with open('../Data/trajectories4.json') as json_data:
+        events.update(json.load(json_data))
     
     numEvents = len(events.keys())
     heappush(FEL,(currentTime + northSignals10[3]*1000, ['NorthSignals10', 'red']))      #Traffic lights shceduled
