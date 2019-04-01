@@ -2,18 +2,18 @@ import numpy as np
 from util import *
 
 
-# TODO: Get averages from trajectories.csv
+# TODO: Get average velocities from trajectories.csv
 VELOCITIES = {
     "MOTORCYCLE":   1,
     "CAR":          2,
     "TRUCK":        1,
 }
 
-# TODO: Get averages from trajectories.csv
+# TODO: Get average vehicle lengths from trajectories.csv
 LENGTHS = {
     "MOTORCYCLE":   1,
     "CAR":          2,
-    "TRUCK":        1,
+    "TRUCK":        2.5,
 }
 
 N_LANES         = 2  # Two lane, one-way roads
@@ -22,7 +22,7 @@ LANES_POSSIBLE  = [1, 2]
 
 class Vehicle():
     """
-    A class to capture vehicle driving
+    A class to capture vehicle driving. Driving is an activity.
     """
 
     def __init__(self, vehicle_type):
@@ -56,7 +56,7 @@ class Vehicle():
         v1_y_fullstep  = self.y + self.vel * dt          # Full speed
         v1_y_halfstep  = self.y + (self.vel * 0.5 * dt)  # Half speed
 
-        switch = switch_lane()  # Switch lane with some probability
+        switch = should_switch_lane()  # Switch lane with some probability
         if switch:
             v1_lane = 2 if self.lane == 1 else 1  # Flip the lane
         else:
