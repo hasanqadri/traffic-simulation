@@ -58,30 +58,27 @@ numCars = 1;
 numEvents = 0;
 
 
-# In[2]:
-
-
-
-### Populate our event list
+# Populates our event list with inital events. 
+# There is a chance our simulation is short-lived or very long depending on these initial events
 def getHistoricalEvents():
     global events
     global leftTurnChance
     global rightTurnChance
     events = {}
 
-    with open('../Data/trajectories0.json') as json_data:
+    with open('../data/trajectories0.json') as json_data:
         events = json.load(json_data)
         
-    with open('../Data/trajectories1.json') as json_data:
+    with open('../data/trajectories1.json') as json_data:
         events.update(json.load(json_data))
         
-    with open('../Data/trajectories2.json') as json_data:
+    with open('../data/trajectories2.json') as json_data:
         events.update(json.load(json_data))
             
-    with open('../Data/trajectories3.json') as json_data:
+    with open('../data/trajectories3.json') as json_data:
         events.update(json.load(json_data))
             
-    with open('../Data/trajectories4.json') as json_data:
+    with open('../data/trajectories4.json') as json_data:
         events.update(json.load(json_data))
     
     numEvents = len(events.keys())
@@ -89,19 +86,19 @@ def getHistoricalEvents():
     heappush(FEL,(currentTime + northSignals11[1]*1000, ['NorthSignals11', 'red']))
     heappush(FEL,(currentTime + northSignals12[1]*1000, ['NorthSignals12', 'red']))
     heappush(FEL,(currentTime + northSignals14[3]*1000, ['NorthSignals14', 'red']))
-    heappush(FEL,(currentTime + northSignals10[1]*1000, ['NorthSignalsLeft10', 'red']))    #Traffic left lights scheduled
+    heappush(FEL,(currentTime + northSignals10[1]*1000, ['NorthSignalsLeft10', 'red']))    #Traffic left-turn lights scheduled
     heappush(FEL,(currentTime + northSignals14[3]*1000, ['NorthSignalsLeft14', 'red']))  
     arrivalTime = getInterArrivalTime()
     leftTurnChance = getLeftTurnChance();
     rightTurnChance = getRightTurnChance();
-    heappush(FEL,(arrivalTime, ['NinthSegment', leftTurnChance, rightTurnChance, arrivalTime]))  #First Car event that is scheduled
+    heappush(FEL,(arrivalTime, ['NinthSegment', leftTurnChance, rightTurnChance, arrivalTime]))  #First car event that is scheduled
 
-#Randomly generated interarrival time
+# Randomly generated interarrival time used for initial car creation
 def getInterArrivalTime():
     global numEvents
     #Interarrival times
     interArrivalTimes = [0]
-    for n in range(int(numEvents/1000)):  #Dividing by 1000 Limits range of interarrival times but GREATLY speeds up the simulation
+    for n in range(int(numEvents/1000)):  #Dividing by 1000 limits range of interarrival times but GREATLY speeds up the simulation
         interArrivalTimes.append(0)
     for z in range(int(numEvents/1000)):
         interArrivalTimes[z] = events[str(z)]['Epoch_ms'] - START_TIME;
@@ -110,7 +107,7 @@ def getInterArrivalTime():
         return abs(interArrivalTimes[i] - currentTime) + interArrivalTimes[i] + 5000
     return interArrivalTimes[i]; 
 
-#Calculate chance for left turn
+#Calculate chance for left turn for cars at any given intersection
 def getRightTurnChance():
     #Left turns
     intersectionCounter = 0;
@@ -123,7 +120,7 @@ def getRightTurnChance():
     leftTurnChance = leftTurnCounter / intersectionCounter;
     return leftTurnChance
         
-#Calculate chance for right turn
+#Calculate chance for right turn for cars at any given itnersection
 def getLeftTurnChance():
     #Left turns
     intersectionCounter = 0;
@@ -136,14 +133,8 @@ def getLeftTurnChance():
     rightTurnChance = rightTurnCounter / intersectionCounter;
     return rightTurnChance;
         
-    
-
-
-# In[3]:
-
-
-
-#Execute the event and schedule the next events
+#E xecute the event and schedule the next events
+# Main event scheduler
 def executeEvent(event):
     global numCars;
     #Read type of event and execute that event
@@ -178,18 +169,13 @@ def executeEvent(event):
         fourteenthIntersection(event);
     elif (event[1][0] == 'FourteenthSegment'):
         fourteenthSegment(event)
-    #New Event
+    # Simulates adding new car to our sim
     if (currentTime % 10000 < 900):
         arrivalTime = getInterArrivalTime()
         heappush(FEL,(arrivalTime, ['NinthSegment', leftTurnChance, rightTurnChance, arrivalTime]))
 
-
-
-# In[4]:
-
-
-
-#Event - Entering segment before 10th intersection
+# Event - Entering segment before 10th intersection
+# Determines if car takes left or right turn at next intersection and schedules that event.
 def ninthSegment(event):
     turnResult = checkLeftRightTurn(event);
     if (turnResult == 1):
@@ -200,6 +186,8 @@ def ninthSegment(event):
         heappush(FEL,(event[0]+ 1000, ['TenthIntersection', event[1][1], event[1][2], event[1][3], 0]))
         
 #Event - Entering 10th intersection
+# Car takes left turn or goes straight if light if green. It takes a right turn even if light is red.
+# If light is red, then cars wanting to go straight or left wait for a green.
 def tenthIntersection(event):
     global tenDelay;
     global tenLeftDelay;
@@ -222,17 +210,17 @@ def tenthIntersection(event):
             heappush(FEL,(event[0] + 2000, ['TenthIntersection', event[1][1], event[1][2], event[1][3], 0]))
             tenDelay = tenDelay + 2000  
     
-#Event - Entering 10th Segment
+# Event - Entering 10th Segment
+# Determines if car takes right turn at next intersection and schedules that event if so. Otherwise schedules going straight.
 def tenthSegment(event):
     turnResult = checkLeftRightTurn(event);
     if (turnResult == 1):
         heappush(FEL,(event[0] + 1000, ['EleventhIntersection', event[1][1], event[1][2], event[1][3], 1]))
-    elif (turnResult == 2):
-        heappush(FEL,(event[0] + 1000, ['EleventhIntersection', event[1][1], event[1][2], event[1][3], 2]))
     else:
         heappush(FEL,(event[0]+ 1000, ['EleventhIntersection', event[1][1], event[1][2], event[1][3], 0]))
         
-#Event - Entering 11th intersection
+# Event - Entering 11th intersection
+# Car goes straight if light is green. It takes a right turn even if light is red.
 def eleventhIntersection(event):
     global elevenDelay;
     global leftTurn;
@@ -247,17 +235,17 @@ def eleventhIntersection(event):
             heappush(FEL,(event[0] + 2000, ['EleventhIntersection', event[1][1], event[1][2], event[1][3], 0]))
             elevenDelay = elevenDelay + 2000    
 
-#Event - Entering 11th segment
+# Event - Entering 11th segment
+# Determines if car takes right turn at next intersection and schedules that event. Otherwise schedules going straight.
 def eleventhSegment(event):
     turnResult = checkLeftRightTurn(event);
     if (turnResult == 1):
         heappush(FEL,(event[0] + 1000, ['TwelfthIntersection', event[1][1], event[1][2], event[1][3], 1]))
-    elif (turnResult == 2):
-        heappush(FEL,(event[0] + 1000, ['TwelfthIntersection', event[1][1], event[1][2], event[1][3], 2]))
     else:
         heappush(FEL,(event[0]+ 1000, ['TwelfthIntersection', event[1][1], event[1][2], event[1][3], 0]))
 
-#Event - Entering 12th intersection
+# Event - Entering 12th intersection
+# Car goes straight if light is green. It takes a right turn even if light is red.
 def twelfthIntersection(event):
     global twelveDelay;
     global leftTurn;
@@ -272,7 +260,8 @@ def twelfthIntersection(event):
             heappush(FEL,(event[0] + 2000, ['TwelfthIntersection', event[1][1], event[1][2], event[1][3], 0]))
             twelveDelay = twelveDelay + 2000    
 
-#Event - Entering 12th segment
+# Event - Entering 12th segment
+# Determines if car takes left or right turn at next intersection and schedules that event. Otherwise schedules going straight.
 def twelfthSegment(event):
     turnResult = checkLeftRightTurn(event);
     if (turnResult == 1):
@@ -282,7 +271,9 @@ def twelfthSegment(event):
     else:
         heappush(FEL,(event[0]+ 1000, ['FourteenthIntersection', event[1][1], event[1][2], event[1][3], 0]))
 
-#Event - Entering 14th intersection
+# Event - Entering 14th intersection
+# Car takes left turn or goes straight if light if green. It takes a right turn even if light is red.
+# If light is red, then cars wanting to go straight or left wait for a green.
 def fourteenthIntersection(event):
     global fourteenDelay;
     global fourteenLeftDelay;
@@ -305,7 +296,8 @@ def fourteenthIntersection(event):
             heappush(FEL,(event[0] + 2000, ['FourteenthIntersection', event[1][1], event[1][2], event[1][3], 0]))
             fourteenDelay = fourteenDelay + 2000
 
-#Event - Entering 14th segment
+# Event - Entering 14th segment
+# Cars leave sim and we update stats
 def fourteenthSegment(event):
     carTravelTimes.append(event[0] - event[1][3])
             
@@ -318,11 +310,6 @@ def checkLeftRightTurn(event):
     if (u < leftTurnChance + .2): #Added .2 for testing purposes here, the generated left turn chance was too small otherwise
         return 2;
     return 0;
-
-
-# In[5]:
-
-
 
 #Event - Switch 10th Street Lights
 def switchTenthLights(event):
@@ -375,7 +362,7 @@ def switchFourteenthLights(event):
         curr14Light = 'green';
         heappush(FEL,(currentTime + northSignals14[3]*1000, ['NorthSignals14', 'red']))      #Traffic lights shceduled
 
-        #Event - Switch 12th Street Left Turn Lights
+#Event - Switch 12th Street Left Turn Lights
 def switchFourteenthLeftLights(event):
     global curr14LeftLight
     if (event[1][1] == 'red'):
@@ -384,13 +371,6 @@ def switchFourteenthLeftLights(event):
     else:
         curr14LeftLight = 'green';
         heappush(FEL,(currentTime + northSignals14[1]*1000, ['NorthSignalsLeft14', 'red']))      #Traffic lights shceduled
-
-
-
-# In[6]:
-
-
-
 
 #Start Program
 def main():
@@ -415,12 +395,6 @@ def main():
     print('Cumulative wait time for left turn at 14th street: ' + str(fourteenLeftDelay/1000) + ' seconds')
     print('Cumulative wait time for left turn at 10th street: ' + str(tenLeftDelay/1000) + ' seconds')
 
-
-
-
-# In[7]:
-
-
 #Our simulation engine
 def runSimulation():
     global FEL;
@@ -433,10 +407,6 @@ def runSimulation():
         print(next_item)
         currentTime = currentTime + (next_item[0] - currentTime) #Advance simulation time
         executeEvent(next_item);                                 #Update state variables and counters and generate future events
-
-
-# In[8]:
-
 
 main()
 
