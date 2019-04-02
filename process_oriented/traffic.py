@@ -17,13 +17,26 @@ class RoadSegment():
     def __init__(self, name, records, n_moving):
         self.name                = name
         self.records             = records
-        self.moving              = n_moving
+        self.n_moving            = n_moving  # Will stay constant
+        self.moving              = n_moving  # Will change over time. Workers.
         self.moving_lock         = Lock()
         self.car_queue           = deque()
         self.car_queue_lock      = Lock()
 
         self.segment             = None
         self.started             = False
+
+    def __str__(self):
+        return self.name
+
+
+    def empty(self):
+        answer = False
+        with self.car_queue_lock:
+            with self.moving_lock:
+                answer = (not self.car_queue) and (self.moving == self.n_moving)
+
+        return answer
 
 
     def connect_segment(self, segment):
@@ -34,12 +47,27 @@ class RoadSegment():
         with self.car_queue_lock:
             for travel_time in travel_times:
                 metadata = dict()  # Initialize with new dicts.
-                self.car_queue.append(travel_time, metadata)
+
+                # Track the time this vehicle was added to this RoadSegment.
+                metadata[enter(self.name)] = time.time()
+
+                self.car_queue.append((travel_time, metadata))
 
     def start(self):
         # TODO: Implement
-        self.start = True
         # Create an internal function and run it via a thread.
+        def begin():
+            # print("BEGIN {}".format(self.name))
+            with self.car_queue_lock:
+                with self.moving_lock:
+                    while self.moving > 0 and self.car_queue:
+                        self.moving -= 1
+                        # print("BEGIN MOVING: {}".format(self.moving))
+                        (travel_time, metadata) = self.car_queue.popleft()  # Pop from Queue
+                        self.begin_handling_car(travel_time, metadata)
+
+        t = threading.Thread(target=begin)
+        t.start()
 
 
     def handle_car(self, travel_time, metadata):
@@ -87,7 +115,7 @@ class RoadSegment():
 
         # Otherwise, add to the car queue
         self.car_queue_lock.acquire()
-        self.car_queue.append(travel_time)
+        self.car_queue.append((travel_time, metadata))
         self.car_queue_lock.release()
 
 
@@ -97,25 +125,25 @@ class RoadSegment():
         metadata[leave(self.name)] = time.time()
 
         if should_vehicle_turn():
-            print("VEHICLE HAS TURNED")
+            print("VEHICLE HAS TURNED FROM {}".format(self.name))
             # Track the time this vehicle turned out of this RoadSegment.
             metadata[turn(self.name)] = time.time()
             self.records.add(metadata)
         else:
             # If we have a next segment, send this car there.
             if self.segment:
+                print("VEHICLE TRANSITION TO {}".format(self.segment.name))
                 self.segment.add_car(travel_time, metadata)
             else:
-                print("VEHICLE HAS EXITED")
+                print("VEHICLE HAS EXITED FROM {}".format(self.name))
                 self.records.add(metadata)
-
 
         # If we have car in the queue, just dispatch a new
         # car from the queue immediately.
         handled = False
         self.car_queue_lock.acquire()
         if self.car_queue:
-            travel_time = self.car_queue.popleft()  # Pop from Queue
+            (travel_time, metadata) = self.car_queue.popleft()  # Pop from Queue
             self.begin_handling_car(travel_time, metadata)
             handled = True
         self.car_queue_lock.release()

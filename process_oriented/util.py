@@ -6,7 +6,7 @@ from pprint import pprint
 SEED = 42
 
 # TODO: Get from trajectories.csv
-MAKE_TURN  = 0.05
+MAKE_TURN  = 0.005
 
 record_lock = Lock()
 records = []
@@ -27,6 +27,11 @@ def should_vehicle_turn(random_state=None):
         np.random.seed(random_state)
 
     return np.random.rand() <= MAKE_TURN
+
+
+def random_travel_time(low=0.025, high=0.5, size=5):
+    return np.random.uniform(low, high, size)
+
 
 
 ########################## Metadata Helpers ##########################
@@ -50,20 +55,18 @@ class Records():
         self.lock = Lock()
 
     def add(self, metadata):
-        # pprint(metadata)
-        # print("SAVE: {}".format(id(metadata)))
-        key_start  = enter(name_seg1)
-        key_end    = leave(name_seg4)
+        # key_start  = enter(name_seg1)
+        # key_end    = leave(name_seg4)
 
-        if key_start in metadata and key_end in metadata:
-            start = metadata[key_start]
-            end = metadata[key_end]
+        # if key_start in metadata and key_end in metadata:
+        #     start = metadata[key_start]
+        #     end = metadata[key_end]
 
-            elapsed = "Elapsed: {:.2f}s".format(end - start)
-            print(elapsed)
+        #     elapsed = "Elapsed: {:.2f}s".format(end - start)
+        #     print(elapsed)
 
-        # with self.lock:
-        #     self.records.append(metadata)
+        with self.lock:
+            self.records.append(metadata)
 
     def get(self):
         return self.records.copy()

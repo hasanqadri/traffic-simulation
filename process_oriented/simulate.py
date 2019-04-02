@@ -7,13 +7,22 @@ from util import *
 from traffic import *
 
 # TODO: Modify these parameters
-n_moving_seg1 = 2  # 10th to 11th
-n_moving_seg2 = 1  # 11th to 12th
-n_moving_seg3 = 1  # 12th to 13th
-n_moving_seg4 = 1  # 13th to 14th
+n_moving_seg1 = 5  # 10th to 11th
+n_moving_seg2 = 5 # 11th to 12th
+n_moving_seg3 = 5  # 12th to 13th
+n_moving_seg4 = 2  # 13th to 14th
+
 
 def initialize(seg1, seg2, seg3, seg4):
-    pass
+    seg1_travel_times = random_travel_time(size=10)
+    seg2_travel_times = random_travel_time(size=10)
+    seg3_travel_times = random_travel_time(size=10)
+    seg4_travel_times = random_travel_time(size=10)
+
+    seg1._initialize(seg1_travel_times)
+    seg2._initialize(seg2_travel_times)
+    seg3._initialize(seg3_travel_times)
+    seg4._initialize(seg4_travel_times)
 
 
 def main():
@@ -33,15 +42,18 @@ def main():
 
     # Initialize segments with cars.
     initialize(seg1, seg2, seg3, seg4)
+    # Start up all the queues
+    seg1.start()
+    seg2.start()
+    seg3.start()
+    seg4.start()
 
-    travel_times = [1.5, 1, 0.2, 0.5]
-    # travel_times = [0.5, 1]
-    for travel_time in travel_times:
-        seg1.add_car(travel_time=travel_time, metadata=dict())
 
-    time.sleep(5)
+    # TODO: Use information about segments.
+    time.sleep(15)
+
+
     for record in records.get():
-
         key_start  = enter(name_seg1)
         key_end    = leave(name_seg4)
 
