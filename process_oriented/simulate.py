@@ -14,10 +14,10 @@ n_moving_seg4 = 2  # 13th to 14th
 
 
 def initialize(seg1, seg2, seg3, seg4):
-    seg1_travel_times = random_travel_time(size=10)
-    seg2_travel_times = random_travel_time(size=10)
-    seg3_travel_times = random_travel_time(size=10)
-    seg4_travel_times = random_travel_time(size=10)
+    seg1_travel_times = random_travel_time(size=20)
+    seg2_travel_times = random_travel_time(size=5)
+    seg3_travel_times = random_travel_time(size=5)
+    seg4_travel_times = random_travel_time(size=5)
 
     seg1._initialize(seg1_travel_times)
     seg2._initialize(seg2_travel_times)
