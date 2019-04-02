@@ -8,19 +8,6 @@ from threading import Lock
 from util import *
 
 
-########################## Metadata Functions ##########################
-
-def enter(segment_name):
-    return "enter_{}".format(segment_name)
-
-def leave(segment_name):
-    return "leave_{}".format(segment_name)
-
-def turn(segment_name):
-    return "turn_{}".format(segment_name)
-
-########################################################################
-
 class RoadSegment():
     """
     Segment of a road, behaves like a Resource from Simpy.
@@ -65,7 +52,6 @@ class RoadSegment():
 
 
     def begin_handling_car(self, travel_time, metadata):
-        print("SEGMENT {} is handling a new car".format(self.name))
         t = threading.Thread(
             target=self.handle_car,
             args=(travel_time, metadata),
@@ -74,13 +60,14 @@ class RoadSegment():
         t.start()
 
 
-    def add_car(self, travel_time=1, metadata={}):
+    def add_car(self, travel_time, metadata):
         """
         :travel_time: - how long this vehicle takes to be processed.
             Related to velocity.
         :metadata: - a dict containing information about this vehicle's
             journey through road segments
         """
+        # print("Car added to SEGMENT '{}': travel time '{}' - {}".format(self.name, travel_time, id(metadata)))
 
         # Track the time this vehicle was added to this RoadSegment.
         metadata[enter(self.name)] = time.time()

@@ -6,12 +6,11 @@ from pprint import pprint
 from util import *
 from traffic import *
 
-# TODO: Get actual segment lengths.
-SEG1 = 70  # 10th to 11th
-SEG2 = 70  # 11th to 12th
-SEG1 = 50  # 12th to 13th
-SEG1 = 50  # 13th to 14th
-
+# TODO: Modify these parameters
+n_moving_seg1 = 2  # 10th to 11th
+n_moving_seg2 = 1  # 11th to 12th
+n_moving_seg3 = 1  # 12th to 13th
+n_moving_seg4 = 1  # 13th to 14th
 
 def initialize(seg1, seg2, seg3, seg4):
     pass
@@ -22,10 +21,10 @@ def main():
     records = Records()  # Bookkeeping.
 
     # Initialize road segments.
-    seg1 = RoadSegment("seg1", records, 10)  # 10th to 11th
-    seg2 = RoadSegment("seg2", records, 10)  # 11th to 12th
-    seg3 = RoadSegment("seg3", records, 10)  # 12th to 13th
-    seg4 = RoadSegment("seg4", records, 10)  # 13th to 14th
+    seg1 = RoadSegment(name_seg1, records, n_moving_seg1)  # 10th to 11th
+    seg2 = RoadSegment(name_seg2, records, n_moving_seg2)  # 11th to 12th
+    seg3 = RoadSegment(name_seg3, records, n_moving_seg3)  # 12th to 13th
+    seg4 = RoadSegment(name_seg4, records, n_moving_seg4)  # 13th to 14th
 
     # Connect segments together.
     seg1.connect_segment(seg2)
@@ -35,13 +34,23 @@ def main():
     # Initialize segments with cars.
     initialize(seg1, seg2, seg3, seg4)
 
-    travel_times = [1,1,1,1]
+    travel_times = [1.5, 1, 0.2, 0.5]
+    # travel_times = [0.5, 1]
     for travel_time in travel_times:
-        seg1.add_car(travel_time=travel_time)
+        seg1.add_car(travel_time=travel_time, metadata=dict())
 
-    time.sleep(4.5)
+    time.sleep(5)
     for record in records.get():
-        pprint(record)
+
+        key_start  = enter(name_seg1)
+        key_end    = leave(name_seg4)
+
+        if key_start in record and key_end in record:
+            start = record[key_start]
+            end = record[key_end]
+
+            elapsed = "Elapsed: {:.2f}s".format(end - start)
+            print(elapsed)
 
 
 if __name__ == "__main__":
