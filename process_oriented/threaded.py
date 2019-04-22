@@ -88,20 +88,22 @@ class Process(object):
         return out
 
 
-def VehicleProcess(Process):
-    def __init__(self, start_time, fel):
+class VehicleProcess(Process):
+
+    def __init__(self, fel, start_time):
+
         proc_type = "Drive"
-        proc_id   = np.random.randint((1, int(1e9)))
+        proc_id   = np.random.randint(1, int(1e9))
 
         super(VehicleProcess, self).__init__(start_time, proc_type,
                                                 proc_id, fel)
 
-        self.meta["INIT"]  = start_time
-        self.meta['Calls'] = 0  # The number of times handle() is called.
+        self.metadata["INIT"]  = start_time
+        self.metadata['Calls'] = 0  # The number of times handle() is called.
 
 
     def handle(self, fel, sim_time):
-        self.meta['Calls'] += 1
+        self.metadata['Calls'] += 1
 
         # TODO: Do something smarter
         # For now, if we hit some time threshold, stop immediately.
@@ -110,4 +112,4 @@ def VehicleProcess(Process):
 
         # Otherwise cause some delay and reschedule the process
         new_time = sim_time + 10
-        self.waitUntil(new_time, fel)
+        self.waitUntil(fel, new_time)
