@@ -6,3 +6,4 @@ The model and engine are both within the event_sim file. The simulation prints t
 and then stats on the simulation afterwards. 
 
 To run the simulation type 'python event_sim.py' 
+To run the unit tests for the simulation type 'python test_event_sim.py'
