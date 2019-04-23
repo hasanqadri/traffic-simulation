@@ -1,10 +1,7 @@
-"""
-Utility for loading data from pkl format, either zipped or unzipped.
-"""
-
 import pickle
 import gzip
 
+########################## Data Loading Helpers #######################
 def readpkl(fname):
     with open(fname, 'rb') as f:
         data = pickle.load(f)

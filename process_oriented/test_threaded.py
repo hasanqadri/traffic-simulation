@@ -90,23 +90,23 @@ class TestVehicleProcess(unittest.TestCase):
         print(proc)
 
 
-    def test_handle(self):
-        # TODO: Remove later
-        fel = FutureEventList()
-        self.assertEqual(fel.data, [])
+    # def test_handle(self):
+    #     # TODO: Remove later
+    #     fel = FutureEventList()
+    #     self.assertEqual(fel.data, [])
 
-        start_time = 5
-        first_proc = VehicleProcess(fel, start_time)
-        fel.pop()
+    #     start_time = 5
+    #     first_proc = VehicleProcess(fel, start_time)
+    #     fel.pop()
 
-        sim_time = 18
-        first_proc.handle(fel, sim_time)
+    #     sim_time = 18
+    #     first_proc.handle(fel, sim_time)
 
-        self.assertEqual(len(fel.data), 1)
-        new_time, proc = fel.peek()
+    #     self.assertEqual(len(fel.data), 1)
+    #     new_time, proc = fel.peek()
 
-        self.assertEqual(first_proc, proc)
-        self.assertEqual(new_time, sim_time + 10)
+    #     self.assertEqual(first_proc, proc)
+    #     self.assertEqual(new_time, sim_time + 10)
 
 
 

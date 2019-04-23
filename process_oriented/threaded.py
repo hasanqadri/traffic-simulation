@@ -6,16 +6,128 @@ threads in the simulation.
 from heapq import heappush, heappop
 import numpy as np
 import threading
+from util import *
+
+
+# Signal Names
+SIG0 = "10th Signal"
+SIG1 = "11th Signal"
+SIG2 = "12th Signal"
+SIG3 = "14th Signal"
+
+SIG0_LEFT = "10th Left Signal"
+SIG1_LEFT = "14th Left Signal"
+
+RED    = 1
+GREEN  = 2
+
+class Signal():
+    def __init__(self, name, flip_time):
+        self.name          = name
+        self.flip_time     = flip_time  # Time to flip
+        self.last_flipped  = None
+        self.color         = RED
+
+        self.lock          = threading.Lock()
+
+
+    def flip(self, sim_time):
+        with self.lock:
+            color = self.color
+            if color == RED:
+                self.color = GREEN
+            else:
+                self.color = RED
+
+            self.last_flipped = sim_time
+
+
+    def next_flip_time(self, use_epsilon=True):
+        """
+        Estimates the time of the next signal flip. Use this to schedule
+        when vehicles will move. The randomness serves as a tie-breaker.
+        """
+        if use_epsilon:  # Adds a random delay, 0 - 1 second.
+            epsilon = np.random.random()
+        else:
+            epsilon = 0  # No delay.
+
+        with self.lock:
+            estimate = self.last_flipped + self.flip_time + epsilon
+
+        return estimate
+
+
+    def is_green(self):
+        with self.lock:
+            color = self.color
+
+        return (color == GREEN)
+
+
+class SimulationState():
+    """
+    This stores signal states.
+    """
+    def __init__(self):
+        signals = {}
+
+        for signame in [SIG0, SIG1, SIG2, SIG3]:
+            flip_time = 2.25  # TODO: Get this time empirically.
+            signals[signame] = Signal(signame, flip_time)
+
+        # Left turn signals
+        for signame in [SIG0_LEFT, SIG3_LEFT]:
+            flip_time = 2.25  # TODO: Get this time empirically.
+            signals[signame] = Signal(signame, flip_time)
+
+        self.signals = signals
+
+
+    def get_signal_by_name(self, signame):
+        if signame not in self.signals:
+            raise ValueError("Unknown signame.")
+
+        return self.signals[signame]
+
+
+    def get_signal(self, direction, segment):
+        signals = self.signals
+        if direction == GO_LEFT:
+            if segment == SEG0:
+                return signals[SIG0_LEFT]
+            elif segment == SEG3:
+                return signals[SIG3_LEFT]
+            else:
+                raise ValueError("Direction not supported at this segment")
+                return None
+
+        if segment == SEG0:
+            return signals[SIG0]
+        elif segment == SEG1:
+            return signals[SIG1]
+        elif segment == SEG2:
+            return signals[SIG2]
+        elif segment == SEG3:
+            return signals[SIG3]
+
+        raise ValueError("Segment not supported.")
 
 
 class FutureEventList(object):
     """
     A thread-safe FEL implementation.
+
+    Can also hold unsorted list of element
     """
 
     def __init__(self):
         self.data = []
         self.lock = threading.Lock()
+
+        # Store terminated processes.
+        self.completed       = []  # Completed processes.
+        self.completed_lock  = threading.Lock()
 
 
     def size(self):
@@ -44,12 +156,25 @@ class FutureEventList(object):
 
         return out
 
+
     def peek(self):
         first = None
         with self.lock:
             if len(self.data):
                 first = self.data[0]
         return first
+
+
+    def add_completed(self, proc):
+        """
+        Add a terminated process here.
+        """
+        with self.completed_lock:
+            self.completed.append(proc)
+
+
+    def get_completed(self):
+        return self.completed
 
 
 class Process(object):
@@ -74,7 +199,7 @@ class Process(object):
         fel.push(element, priority)
 
 
-    def handle(self, fel, sim_time):
+    def handle(self, fel, sim_time, sim_state):
         """
         To be implemented by every Process type differently.
         """
@@ -92,24 +217,88 @@ class VehicleProcess(Process):
 
     def __init__(self, fel, start_time):
 
-        proc_type = "Drive"
+        proc_type = "Vehicle Drive"
         proc_id   = np.random.randint(1, int(1e9))
 
-        super(VehicleProcess, self).__init__(start_time, proc_type,
-                                                proc_id, fel)
+        super(VehicleProcess, self).__init__(start_time, proc_type, proc_id,
+                                                fel)
 
         self.metadata["INIT"]  = start_time
-        self.metadata['Calls'] = 0  # The number of times handle() is called.
+
+        # Mark as entering 10th street intersection.
+        self.segment           = SEG0
+        self.transition        = DEPART
 
 
-    def handle(self, fel, sim_time):
-        self.metadata['Calls'] += 1
+    def _handle_depart(self, fel, sim_time, sim_state):
+        """
+        This is when we leave a road segment, AKA when we're at an intersetion.
+        """
+        segment     = self.segment
+        transition  = self.transition
 
-        # TODO: Do something smarter
-        # For now, if we hit some time threshold, stop immediately.
-        if sim_time > 100:
+        # Mark that we left segment at this time.
+        self.metadata[leave(segment)] = sim_time
+
+        # Determine which way to go from here.
+        direction = which_way(segment, transition)
+
+        # First, get the signal belonging to this intersection
+        signal = sim_state.get_signal(direction, segment)
+        # If the signal is green, there's a small transfer time to get out of segment.
+        new_time = sim_time + 5
+        # If the signal is not green, determine which time it will become
+        # green, and add that to the transfer time.
+        if not signal.is_green():
+            new_time += signal.next_flip_time()
+
+        if direction in [GO_LEFT, GO_RIGHT]:
+            # We are turning. Mark it in metadata.
+            self.metadata[turn(direction)] = (new_time, segment)
+
+            # Add this process to the completed pile.
+            proc = self
+            fel.add_completed(proc)
             return
 
-        # Otherwise cause some delay and reschedule the process
+        # We're going forward. Update where we'll go next.
+        self.segment = get_next_segment(segment)
+
+        # EDGE Case: If we're exiting 14th, mark the special key
+        # and add it to the completed list.
+        if next_seg == EXIT:
+            self.metadata["END"] = new_time
+            # Add this process to the completed pile.
+            proc = self
+            fel.add_completed(proc)
+            return
+
+        else:
+            # Change from DEPART to ARRIVE and vice versa.
+            self.transition = flip(transition)
+            # Add self back onto FEL.
+            self.waitUntil(fel, new_time)
+
+
+    def _handle_arrive(self, fel, sim_time, sim_state):
+        segment     = self.segment
+        transition  = self.transition
+
+        # Mark that we entered segment at this time.
+        self.metadata[enter(segment)] = sim_time
+
+        # Transition to departure now.
+        self.transition = flip(transition)
+
+        # 10 second delay to get through to intersection.
         new_time = sim_time + 10
+
+        # Add self back onto FEL.
         self.waitUntil(fel, new_time)
+
+
+    def handle(self, fel, sim_time, sim_state):
+        if self.transition == DEPART:
+            self._handle_depart(fel, sim_time, sim_state)
+        else:
+            self._handle_arrive(fel, sim_time, sim_state)
