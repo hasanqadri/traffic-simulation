@@ -5,7 +5,8 @@ from helpers import *
 SEED = 42
 
 # Will be used in other places
-EVENTS = compressed_readpkl(DATAPATH)
+EVENTS     = compressed_readpkl(DATAPATH)
+NUM_EVENTS = len(EVENTS)
 print("Initialized data from ground truth.")
 
 def seed_rng():

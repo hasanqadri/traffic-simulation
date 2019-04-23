@@ -33,38 +33,33 @@ def compute_mavg(travel_times):
 
 mavg = compute_mavg(travel_times)
 xs = range(len(mavg))
-plt.plot(xs, mavg)
-plt.axvline(x=25000, color="red")
+
+fig = plt.figure(figsize=(15, 6), dpi=100)
+plt.plot(xs, mavg, label="Moving Average of Travel Time")
+plt.axvline(x=25000, color="red", label="Cutoff")
 plt.xlabel("Samples taken")
 plt.ylabel("Mean Travel Time of Samples (s)")
 plt.title("Moving Average of Mean Travel Time")
+plt.legend()
 
-# Based on above, we know k=25000 is a good cutoff
+fig.savefig("images/warmup.png")
+
+
+# Based on above, we know k = 25000 is a good cutoff
 k = 25000
-print("Discarding the first {} samples".format(k))
 travel_times = travel_times[k:]
 
-
+print("Discarding the first {} samples.".format(k))
 print("Number of cars that traveled 10th to 14th all the way: ", len(
     arrival_times))
-
-print("Mean travel time: {:.3f} s".format(np.mean(travel_times)))
-print("Stdev travel time: {:.3f} s".format(np.std(travel_times)))
-print("Median travel time: {:.3f} s".format(np.median(travel_times)))
+print("Mean  travel time: {:.3f}s".format(np.mean(travel_times)))
+print("Stdev travel time: {:.3f}s".format(np.std(travel_times)))
 
 
-def plot_hist(data, bins=20, ticks=True):
-    counts, mids = np.histogram(data, bins=bins)
-    mids = mids[1:]
-    plt.bar(mids, counts, width=8.0)
-
-    if ticks:
-        plt.xticks(mids) # no need to add .5 anymore
-
-plt.figure(figsize=(15, 6), dpi=100)
-plot_hist(travel_times, bins=20)
+fig = plt.figure(figsize=(15, 6), dpi=100)
+plt.hist(travel_times, bins=20)
 plt.xlabel("Travel Time (s)")
 plt.ylabel("Counts")
 plt.title("Travel Times Histogram")
 
-plt.show()
+fig.savefig("images/travel_time_histogram.png")

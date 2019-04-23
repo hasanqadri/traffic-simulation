@@ -13,7 +13,6 @@ START_TIME = 1163030800
 sim_state = SimulationState()
 sim_time  = 0
 fel       = FutureEventList()
-numEvents = 0
 
 interarrival_times = []
 
@@ -38,7 +37,7 @@ def get_random_interarrival_time():
 
 def init_interarrival_times():
     global interarrival_times
-    N_keep = numEvents // 1000  # Reduces number of arrival times significantly without shifting distribution much
+    N_keep = NUM_EVENTS // 1000  # Reduces number of arrival times significantly without shifting distribution much
     for z in range(N_keep):
         interarrival_times.append(EVENTS[str(z)]['Epoch_ms'] - START_TIME)
 
@@ -61,8 +60,6 @@ def init_signals():
 
 
 def initialize():
-    global numEvents
-    numEvents = len(EVENTS)
     init_interarrival_times()
     init_signals()
 
