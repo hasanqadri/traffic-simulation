@@ -53,11 +53,15 @@ def init_signals():
     for (signame, green_time, red_time) in signal_timings:
         signal = Signal(signame, green_time, red_time)
 
+        # Randomly initialize signal color
+        signal.color = np.random.choice([RED, GREEN])
+
         sim_state.add_signal(signame, signal)
         # logger.debug(signal)
 
-        # Creates a process. Assume it starts green, so switch when turns red.
-        new_time = sim_time + red_time
+        # Determine time after which signal will flip, create a SignalProcess
+        # based on that.
+        new_time = signal.next_flip_time(use_epsilon=False)
         SignalProcess(new_time, fel, sim_state, signame)  # Adds self to FEL.
 
 
@@ -90,7 +94,7 @@ def main():
 
         # Simulates adding new car to our sim only if MAXTIME not exceeded.
         if sim_time < MAXTIME and (np.random.random() < 0.05):  # With 5% chance
-            logger.info("Adding new vehicle")
+            logger.debug("Adding new vehicle")
             added += 1
             arrival_time = get_random_interarrival_time()
             VehicleProcess(fel, arrival_time)  # Adds self to FEL.
