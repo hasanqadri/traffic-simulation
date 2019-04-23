@@ -5,17 +5,6 @@ from empirical import *
 from util import *
 from threaded import *
 
-# import logging
-# logging.basicConfig(
-#     level=logging.DEBUG,
-#     format="%(asctime)s [%(levelname)-5.5s]  %(message)s",
-#     handlers=[
-#         logging.FileHandler("run.log"),
-#         logging.StreamHandler()
-#     ]
-# )
-# logger = logging.getLogger()
-
 
 START_TIME = 1163030800
 
@@ -86,18 +75,22 @@ def initialize():
 
 
 def main():
-    MAXTIME = 1e5
     global sim_time
+
+    MINTIME = 1000    # Ensure we run for at least this long
+    MAXTIME = 1000000  # No vehicles added after this point.
 
     count = 0
     added = 1
-    while sim_time < MAXTIME and not fel.empty():
+    while sim_time < MINTIME or fel.has_vehicles():
+
         new_time, proc = fel.pop()
         sim_time = new_time
         proc.handle(fel, sim_time, sim_state)
 
-        # Simulates adding new car to our sim
-        if (np.random.random() < 0.05):  # With 5% chance
+        # Simulates adding new car to our sim only if MAXTIME not exceeded.
+
+        if sim_time < MAXTIME and (np.random.random() < 0.05):  # With 5% chance
             logger.info("Adding new vehicle")
             added += 1
             arrival_time = get_random_interarrival_time()
@@ -105,12 +98,14 @@ def main():
 
         count += 1
 
-    logger.debug("Count: {}".format(count))
-    logger.debug("Vehicles Simulated: {}".format(added))
-    logger.debug("Remaining: {}".format(fel.completed))
-    logger.debug("Completed: {}".format(fel.completed))
+
+    logger.info("Remaining: {}".format(fel.completed))
+    logger.info("Completed: {}".format(fel.completed))
+    logger.info("Loop Count: {}".format(count))
+    logger.info("Vehicles Simulated: {}".format(added))
 
 
 if __name__ == "__main__":
+    seed_rng()
     initialize()
     main()

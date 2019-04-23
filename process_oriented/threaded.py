@@ -142,6 +142,9 @@ class FutureEventList(object):
         self.completed       = []  # Completed processes.
         self.completed_lock  = threading.Lock()
 
+        # Track how many VehicleProcesses this holds
+        self.vehicle_count   = 0
+
 
     def size(self):
         n_elements = None
@@ -155,9 +158,18 @@ class FutureEventList(object):
         return self.size() == 0
 
 
-    def push(self, element, priority):
+    def has_vehicles(self):
         with self.lock:
-            heappush(self.data, (priority, element))
+            vc = self.vehicle_count
+
+        return (vc > 0)
+
+    def push(self, proc, priority):
+        with self.lock:
+            heappush(self.data, (priority, proc))
+
+            if isinstance(proc, VehicleProcess):
+                self.vehicle_count += 1
 
 
     def pop(self):
@@ -166,6 +178,9 @@ class FutureEventList(object):
 
         with self.lock:
             out = heappop(self.data)
+            _, proc = out
+            if isinstance(proc, VehicleProcess):
+                self.vehicle_count -= 1
 
         return out
 
