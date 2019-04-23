@@ -42,7 +42,7 @@ def init_interarrival_times():
     for z in range(N_keep):
         interarrival_times.append(EVENTS[str(z)]['Epoch_ms'] - START_TIME)
 
-    logger.info("We have {} arrival times to choose from.".format(len(interarrival_times)))
+    logger.debug("We have {} arrival times to choose from.".format(len(interarrival_times)))
 
 def init_signals():
     for (signame, green_time, red_time) in signal_timings:
@@ -90,7 +90,7 @@ def main():
         proc.handle(fel, sim_time, sim_state)
 
         if count % 100000 == 0:
-            logger.info({"count": count, "proc": proc, "fel": len(fel.data)})
+            logger.info({"Loop count": count, "Elements in FEL": len(fel.data)})
 
         # Simulates adding new car to our sim only if MAXTIME not exceeded.
         if sim_time < MAXTIME and (np.random.random() < 0.05):  # With 5% chance
@@ -101,14 +101,13 @@ def main():
 
         count += 1  # Loop counter.
 
-
-    logger.info("Completed: {}".format(len(fel.completed)))
     logger.info("Loop Count: {}".format(count))
     logger.info("Vehicles Simulated: {}".format(added))
+    logger.info("Vehicles that made it to 14th Street: {}".format(len(fel.completed)))
 
-    filename = "completed_procs_results.pkl"
+    filename = "vehicle_metadata.pkl"
     savepkl(fel.completed, filename)
-    logger.info("Saving completed vehicle processes to {}".format(filename))
+    logger.info("Saving vehicle metadata to {}".format(filename))
 
 
 if __name__ == "__main__":

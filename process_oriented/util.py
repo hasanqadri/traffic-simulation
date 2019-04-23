@@ -18,8 +18,8 @@ logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)-5.5s]  %(message)s",
     handlers=[
-        logging.FileHandler("run.log"),
-        logging.StreamHandler()
+        # logging.FileHandler("run.log"),
+        logging.StreamHandler(),
     ]
 )
 logger = logging.getLogger()

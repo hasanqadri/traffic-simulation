@@ -321,13 +321,10 @@ class VehicleProcess(Process):
         # EDGE Case: If we're exiting 14th, mark the special key
         # and add it to the completed list.
         if self.segment == EXIT:
-            self.metadata["END"] = new_time
-
             # We only care about INIT and END
-            keep_data = {
-                "INIT": self.metadata["INIT"],
-                "END": self.metadata["END"],
-            }
+            time_arrive = self.metadata["INIT"]
+            time_exit = new_time
+            keep_data = (time_arrive, time_exit)
 
             # Add this process's keep_data to the completed pile.
             fel.add_completed(keep_data)

@@ -5,12 +5,12 @@ from matplotlib import pyplot as plt
 import seaborn as sns; sns.set()
 
 
-filename = "completed_procs_results.pkl"
-completed_procs = readpkl(filename)
+filename = "vehicle_metadata.pkl"
+completed_procs = readpkl(filename)  # List<(time_arrive, time_exit)>
 
 # We really only care about the time to INIT and END
-arrival_times = np.array(list((map(lambda x: x['INIT'], completed_procs))))
-exit_times    = np.array(list((map(lambda x: x['END'],  completed_procs))))
+arrival_times = np.array(list((map(lambda x: x[0], completed_procs))))
+exit_times    = np.array(list((map(lambda x: x[1],  completed_procs))))
 travel_times = exit_times - arrival_times
 
 
