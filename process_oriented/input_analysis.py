@@ -20,7 +20,7 @@ init_interarrival_times()
 
 samples = [get_random_interarrival_time() for _ in range(100000)]
 
-fig = plt.figure(figsize=(15, 6), dpi=100)
+fig = plt.figure(figsize=(10, 6), dpi=100)
 
 plt.hist(samples, bins=20)
 plt.xlabel("Arrival Time (s)")
