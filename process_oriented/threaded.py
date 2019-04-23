@@ -302,3 +302,26 @@ class VehicleProcess(Process):
             self._handle_depart(fel, sim_time, sim_state)
         else:
             self._handle_arrive(fel, sim_time, sim_state)
+
+
+class SignalProcess(Process):
+
+    def __init__(self, fel, start_time, signame):
+        proc_type = signame
+        proc_id   = "signal"
+
+        super(VehicleProcess, self).__init__(start_time, proc_type, proc_id,
+                                                fel)
+
+        self.signame = signame
+
+    def handle(self, fel, sim_time, sim_state):
+        """
+        To be implemented by every Process type differently.
+        """
+        signal = sim_state.get_signal_by_name(self.signame)
+        signal.flip()
+        new_time = signal.next_flip_time(use_epsilon=False)
+
+        # Schedule the next flip of the signal.
+        self.waitUntil(fel, new_time)
