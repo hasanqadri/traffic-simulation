@@ -3,6 +3,8 @@ This file holds all the Classes and Functions that will be used to support
 threads in the simulation.
 """
 
+from functools import total_ordering
+
 from heapq import heappush, heappop
 import numpy as np
 import threading
@@ -87,17 +89,6 @@ class SimulationState(object):
     """
     def __init__(self):
         self.signals = {}
-
-        # for signame in [SIG0, SIG1, SIG2, SIG3]:
-        #     flip_time = 2.25  # TODO: Get this time empirically.
-        #     signals[signame] = Signal(signame, flip_time)
-
-        # # Left turn signals
-        # for signame in [SIG0_LEFT, SIG3_LEFT]:
-        #     flip_time = 2.25  # TODO: Get this time empirically.
-        #     signals[signame] = Signal(signame, flip_time)
-
-        # self.signals = signals
 
 
     def add_signal(self, signame, signal):
@@ -197,7 +188,7 @@ class FutureEventList(object):
     def get_completed(self):
         return self.completed
 
-
+@total_ordering
 class Process(object):
     """
     An interface of what different processes must be able to handle.
@@ -228,10 +219,37 @@ class Process(object):
 
 
     def __str__(self):
-        out =   "="*80
-        out +=  "Process: {}\n".format(self.name)
-        out +=  "Data: {}".format(self.metadata)
+        # out =   "="*80
+        out  = ""
+        out += "Process: {}\n".format(self.name)
+        out += "Data: {}".format(self.metadata)
         return out
+
+    def __repr__(self):
+        out  = ""
+        out += "Process: {}\n".format(self.name)
+        out += "Data: {}".format(self.metadata)
+        return out
+
+    # These functions handle tie-breakers. Tie-breakers handled by the
+    # process id.
+    def __eq__(self, other):
+        if not isinstance(other, Process):
+            return False
+
+        return self.proc_id == other.proc_id and self.name == other.name
+
+    def __ne__(self, other):
+        if not isinstance(other, Process):
+            return True
+
+        return self.proc_id != other.proc_id or self.name != other.name
+
+    def __lt__(self, other):
+        if not isinstance(other, Process):
+            return False
+
+        return self.proc_id < other.proc_id
 
 
 class VehicleProcess(Process):
@@ -333,7 +351,7 @@ class SignalProcess(Process):
         proc_type = signame
         proc_id   = "signal"
 
-        super(VehicleProcess, self).__init__(start_time, proc_type, proc_id,
+        super(SignalProcess, self).__init__(start_time, proc_type, proc_id,
                                                 fel)
 
         self.signame = signame

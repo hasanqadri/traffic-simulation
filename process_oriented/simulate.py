@@ -1,12 +1,15 @@
 import numpy as np
 
 from helpers import *
+from empirical import *
 from util import *
 from threaded import *
 
-sim_state = None
-sim_time  = None
-
+sim_state = SimulationState()
+sim_time  = 0
+fel       = FutureEventList()
+events    = {}
+numEvents = 0
 
 # Signal name, green time, red time
 signal_timings = [
@@ -19,20 +22,43 @@ signal_timings = [
     (SIG4_LEFT, 12.4,  3.6),  # 14th street, left turn
 ]
 
+def getInterArrivalTime():
+    global numEvents
+    global events
+
+    events = compressed_readpkl(DATAPATH)
+    #Interarrival times
+    interArrivalTimes = [0]
+
+    # Dividing by 10k limits range of interarrival times but GREATLY speeds
+    # up the simulation
+    for n in range(int(numEvents/10000)):
+        interArrivalTimes.append(0)
+
+    for z in range(int(numEvents/10000)):
+        interArrivalTimes[z] = events[str(z)]['Epoch_ms'] - START_TIME
+    i = random.randint(0, int(numEvents/10000))
+    if (interArrivalTimes[i] < currentTime):
+        return abs(interArrivalTimes[i] - currentTime) + interArrivalTimes[i] + 5000
+    return interArrivalTimes[i]
+
 
 def initialize():
-    global sim_time
-    global sim_state
-
-    sim_time = 0
-    sim_state = SimulationState()
+    global numEvents
+    numEvents = len(EVENTS)
 
     for (signame, green_time, red_time) in signal_timings:
         signal = Signal(signame, green_time, red_time)
 
         sim_state.add_signal(signame, signal)
-
         print(signal)
+
+        # Creates a process. Assume it starts green, so switch when
+        #
+        SignalProcess(fel, sim_time + red_time, signame)
+
+    print(fel.size())
+    print(fel.data)
 
 
 if __name__ == "__main__":

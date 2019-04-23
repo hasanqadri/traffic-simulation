@@ -1,6 +1,8 @@
 import pickle
 import gzip
 
+DATAPATH = "../data/trajectory_events.pklz"
+
 ########################## Data Loading Helpers #######################
 def readpkl(fname):
     with open(fname, 'rb') as f:
