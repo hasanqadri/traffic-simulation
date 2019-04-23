@@ -29,14 +29,6 @@ def get_next_segment(seg):
         return SEG4
     elif seg == SEG4:
         return EXIT
-# Signal Names
-SIG1 = "10th Signal"
-SIG2 = "11th Signal"
-SIG3 = "12th Signal"
-SIG4 = "14th Signal"
-
-SIG1_LEFT = "10th Left Signal"
-SIG4_LEFT = "14th Left Signal"
 
 ############################# TURNING #############################
 P_TURNLEFT, P_TURNRIGHT = get_prob_turning()
@@ -52,6 +44,7 @@ P_INTERSECTIONS = {
 GO_LEFT     = "LEFT"
 GO_RIGHT    = "RIGHT"
 GO_FORWARD  = "FORWARD"
+
 
 def which_way(segment):
     """
@@ -82,7 +75,6 @@ def flip(transition):
         return DEPART
     else:
         return ARRIVE
-
 
 # Time to traverse down segment
 TRAVEL_TIMES = {

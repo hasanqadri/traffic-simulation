@@ -13,20 +13,25 @@ from util import *
 SIG0 = "10th Signal"
 SIG1 = "11th Signal"
 SIG2 = "12th Signal"
-SIG3 = "14th Signal"
+# SIG3 = "14th Signal"
+SIG4 = "14th Signal"
 
 SIG0_LEFT = "10th Left Signal"
-SIG1_LEFT = "14th Left Signal"
+SIG4_LEFT = "14th Left Signal"
 
 RED    = 1
 GREEN  = 2
 
-class Signal():
-    def __init__(self, name, flip_time):
+class Signal(object):
+    def __init__(self, name, green_time, red_time):
         self.name          = name
-        self.flip_time     = flip_time  # Time to flip
-        self.last_flipped  = None
-        self.color         = RED
+
+        # Track how long the given color stays.
+        self.green_time    = green_time
+        self.red_time      = red_time
+
+        self.color         = GREEN  # Initialize to Green
+        self.last_flipped  = 0
 
         self.lock          = threading.Lock()
 
@@ -53,7 +58,12 @@ class Signal():
             epsilon = 0  # No delay.
 
         with self.lock:
-            estimate = self.last_flipped + self.flip_time + epsilon
+            color = self.color
+            flip_time = self.red_time
+            if color == GREEN:
+                flip_time = self.green_time
+
+            estimate = self.last_flipped + self.green_time + epsilon
 
         return estimate
 
@@ -64,24 +74,34 @@ class Signal():
 
         return (color == GREEN)
 
+    def __str__(self):
+        rep = "{} is {}. Flips ({}, {})".format(self.name, self.color,
+            self.green_time, self.red_time)
 
-class SimulationState():
+        return rep
+
+
+class SimulationState(object):
     """
     This stores signal states.
     """
     def __init__(self):
-        signals = {}
+        self.signals = {}
 
-        for signame in [SIG0, SIG1, SIG2, SIG3]:
-            flip_time = 2.25  # TODO: Get this time empirically.
-            signals[signame] = Signal(signame, flip_time)
+        # for signame in [SIG0, SIG1, SIG2, SIG3]:
+        #     flip_time = 2.25  # TODO: Get this time empirically.
+        #     signals[signame] = Signal(signame, flip_time)
 
-        # Left turn signals
-        for signame in [SIG0_LEFT, SIG3_LEFT]:
-            flip_time = 2.25  # TODO: Get this time empirically.
-            signals[signame] = Signal(signame, flip_time)
+        # # Left turn signals
+        # for signame in [SIG0_LEFT, SIG3_LEFT]:
+        #     flip_time = 2.25  # TODO: Get this time empirically.
+        #     signals[signame] = Signal(signame, flip_time)
 
-        self.signals = signals
+        # self.signals = signals
+
+
+    def add_signal(self, signame, signal):
+        self.signals[signame] = signal
 
 
     def get_signal_by_name(self, signame):
@@ -97,10 +117,9 @@ class SimulationState():
             if segment == SEG0:
                 return signals[SIG0_LEFT]
             elif segment == SEG3:
-                return signals[SIG3_LEFT]
+                return signals[SIG4_LEFT]
             else:
                 raise ValueError("Direction not supported at this segment")
-                return None
 
         if segment == SEG0:
             return signals[SIG0]
@@ -109,7 +128,9 @@ class SimulationState():
         elif segment == SEG2:
             return signals[SIG2]
         elif segment == SEG3:
-            return signals[SIG3]
+            return None  # No signal at 13th
+        elif segment == SEG4:
+            return signals[SIG4]
 
         raise ValueError("Segment not supported.")
 
@@ -247,9 +268,11 @@ class VehicleProcess(Process):
         signal = sim_state.get_signal(direction, segment)
         # If the signal is green, there's a small transfer time to get out of segment.
         new_time = sim_time + 5
+
         # If the signal is not green, determine which time it will become
         # green, and add that to the transfer time.
-        if not signal.is_green():
+        # EDGE Case: signal is None because SIG3 doesn't exist.
+        if signal is not None and not signal.is_green():
             new_time += signal.next_flip_time()
 
         if direction in [GO_LEFT, GO_RIGHT]:
