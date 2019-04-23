@@ -1,7 +1,7 @@
 import unittest
 import event_sim
 
-#Test every method in event_sim file for validity
+#Test every method in event_sim file for verification
 class TestCalc(unittest.TestCase):
 	maxInterArrivalTime = 1164063200;
 	minInterArrivalTime = 1163030800;
