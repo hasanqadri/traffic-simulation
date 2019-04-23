@@ -89,20 +89,22 @@ def main():
         proc.handle(fel, sim_time, sim_state)
 
         # Simulates adding new car to our sim only if MAXTIME not exceeded.
-
         if sim_time < MAXTIME and (np.random.random() < 0.05):  # With 5% chance
             logger.info("Adding new vehicle")
             added += 1
             arrival_time = get_random_interarrival_time()
             VehicleProcess(fel, arrival_time)  # Adds self to FEL.
 
-        count += 1
+        count += 1  # Loop counter.
 
 
-    logger.info("Remaining: {}".format(fel.completed))
-    logger.info("Completed: {}".format(fel.completed))
+    logger.info("Completed: {}".format(len(fel.completed)))
     logger.info("Loop Count: {}".format(count))
     logger.info("Vehicles Simulated: {}".format(added))
+
+    filename = "completed_procs_results.pkl"
+    savepkl(fel.completed, filename)
+    logger.info("Saving completed vehicle processes to {}".format(filename))
 
 
 if __name__ == "__main__":

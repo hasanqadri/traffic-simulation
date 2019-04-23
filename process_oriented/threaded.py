@@ -309,12 +309,7 @@ class VehicleProcess(Process):
             new_time += signal.next_flip_time()
 
         if direction in [GO_LEFT, GO_RIGHT]:
-            # We are turning. Mark it in metadata.
-            self.metadata[turn(direction)] = (new_time, segment)
-
-            # Add this process to the completed pile.
-            proc = self
-            fel.add_completed(proc)
+            # Nothing to do, discard this process.
             return
 
         # We're going forward. Update where we'll go next.
@@ -324,9 +319,8 @@ class VehicleProcess(Process):
         # and add it to the completed list.
         if self.segment == EXIT:
             self.metadata["END"] = new_time
-            # Add this process to the completed pile.
-            proc = self
-            fel.add_completed(proc)
+            # Add this process's metadata to the completed pile.
+            fel.add_completed(self.metadata)
             return
 
         else:
