@@ -25,10 +25,14 @@ def compute_mavg(travel_times):
 mavg = compute_mavg(travel_times)
 xs = range(len(mavg))
 plt.plot(xs, mavg)
-plt.axvline(x=30000, color="red")
+plt.axvline(x=25000, color="red")
+plt.xlabel("Samples taken")
+plt.ylabel("Mean Travel Time of Samples (s)")
+plt.title("Moving Average of Mean Travel Time")
 
-# Based on above, we know k=30000 is a good cutoff
-k = 30000
+# Based on above, we know k=25000 is a good cutoff
+k = 25000
+print("Discarding the first {} samples".format(k))
 travel_times = travel_times[k:]
 
 
@@ -54,4 +58,4 @@ plt.xlabel("Travel Time (s)")
 plt.ylabel("Counts")
 plt.title("Travel Times Histogram")
 
-# plt.show()
+plt.show()

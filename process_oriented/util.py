@@ -93,28 +93,16 @@ def flip(transition):
     else:
         return ARRIVE
 
-# Time to traverse down segment
+# Time to traverse down a segment
 TRAVEL_TIMES = {
-    SEG1: 12,
-    SEG2:  8,
-    SEG3:  8,
-    SEG4: 12,
+    SEG1: 16.5,
+    SEG2: 12.5,
+    SEG3: 12.5,
+    SEG4: 16.5,
 }
 
 # Time to exit one segment and enter another via an intersection
-# TRANSFER_DELAY = 2
-
-#######################################################################
-
-# def should_vehicle_turn(random_state=None):
-#     if random_state:
-#         np.random.seed(random_state)
-
-#     return np.random.rand() <= MAKE_TURN
-
-
-# def random_travel_time(low=0.025, high=0.5, size=5):
-#     return np.random.uniform(low, high, size)
+INTERSECTION_DELAY = 5
 
 ########################## Metadata Helpers ###########################
 

@@ -13,7 +13,6 @@ START_TIME = 1163030800
 sim_state = SimulationState()
 sim_time  = 0
 fel       = FutureEventList()
-events    = {}
 numEvents = 0
 
 interarrival_times = []
@@ -29,29 +28,23 @@ signal_timings = [
     (SIG4_LEFT, 12.4,  3.6),  # 14th street, left turn
 ]
 
+
 def get_random_interarrival_time():
-    N_keep = len(interarrival_times)
-    i = np.random.randint(0, N_keep)
-    if (interarrival_times[i] < sim_time):
-        return abs(interarrival_times[i] - sim_time) + interarrival_times[i] + 5000
-    return interarrival_times[i]
+    arrival_time = np.random.choice(interarrival_times)
+    if (arrival_time < sim_time):
+        return abs(arrival_time - sim_time) + arrival_time + 5000
+    return arrival_time
 
 
 def init_interarrival_times():
     global interarrival_times
-    interarrival_times = [0]
+    N_keep = numEvents // 1000  # Reduces number of arrival times significantly without shifting distribution much
+    for z in range(N_keep):
+        interarrival_times.append(EVENTS[str(z)]['Epoch_ms'] - START_TIME)
 
-    # Dividing by 10k limits range of interarrival times but GREATLY speeds
-    # up the simulation
-    N_keep = numEvents // 10000
-    for _ in range(N_keep):
-        interarrival_times.append(events[str(z)]['Epoch_ms'] - START_TIME)
-
+    logger.info("We have {} arrival times to choose from.".format(len(interarrival_times)))
 
 def init_signals():
-    global numEvents
-    numEvents = len(EVENTS)
-
     for (signame, green_time, red_time) in signal_timings:
         signal = Signal(signame, green_time, red_time)
 
@@ -68,6 +61,8 @@ def init_signals():
 
 
 def initialize():
+    global numEvents
+    numEvents = len(EVENTS)
     init_interarrival_times()
     init_signals()
 
@@ -93,6 +88,9 @@ def main():
         new_time, proc = fel.pop()
         sim_time = new_time
         proc.handle(fel, sim_time, sim_state)
+
+        if count % 100000 == 0:
+            logger.info({"count": count, "proc": proc, "fel": len(fel.data)})
 
         # Simulates adding new car to our sim only if MAXTIME not exceeded.
         if sim_time < MAXTIME and (np.random.random() < 0.05):  # With 5% chance

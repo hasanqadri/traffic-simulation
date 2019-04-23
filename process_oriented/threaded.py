@@ -301,7 +301,7 @@ class VehicleProcess(Process):
         signal = sim_state.get_signal(direction, segment)
 
         # If the signal is green, there's a small transfer time to get out of this segment.
-        new_time = sim_time + 5
+        new_time = sim_time + INTERSECTION_DELAY
 
         # If the signal is not green, determine which time it will become
         # green, and make that the new_time.
@@ -309,7 +309,7 @@ class VehicleProcess(Process):
         if signal is not None and not signal.is_green():
             next_flip_time = signal.next_flip_time(use_epsilon=False)
             logger.debug("Light is red until: {}".format(next_flip_time))
-            new_time = signal.next_flip_time()
+            new_time = signal.next_flip_time() + INTERSECTION_DELAY
 
         if direction in [GO_LEFT, GO_RIGHT]:
             # Nothing to do, discard this process.
@@ -350,8 +350,8 @@ class VehicleProcess(Process):
         # Transition to departure now.
         self.transition = flip(transition)
 
-        # 10 second delay to get through to intersection.
-        new_time = sim_time + 10
+        # Add time to get through this segment to intersection.
+        new_time = sim_time + TRAVEL_TIMES[segment]
 
         # Add self back onto FEL.
         self.waitUntil(fel, new_time)
