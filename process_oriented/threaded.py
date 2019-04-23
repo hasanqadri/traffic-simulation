@@ -308,7 +308,7 @@ class VehicleProcess(Process):
         # EDGE Case: signal is None because SIG3 doesn't exist.
         if signal is not None and not signal.is_green():
             next_flip_time = signal.next_flip_time(use_epsilon=False)
-            logger.info("Light is red until: {}".format(next_flip_time))
+            logger.debug("Light is red until: {}".format(next_flip_time))
             new_time = signal.next_flip_time()
 
         if direction in [GO_LEFT, GO_RIGHT]:
@@ -322,8 +322,15 @@ class VehicleProcess(Process):
         # and add it to the completed list.
         if self.segment == EXIT:
             self.metadata["END"] = new_time
-            # Add this process's metadata to the completed pile.
-            fel.add_completed(self.metadata)
+
+            # We only care about INIT and END
+            keep_data = {
+                "INIT": self.metadata["INIT"],
+                "END": self.metadata["END"],
+            }
+
+            # Add this process's keep_data to the completed pile.
+            fel.add_completed(keep_data)
             return
 
         else:

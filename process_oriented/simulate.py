@@ -1,3 +1,5 @@
+import time
+
 import numpy as np
 
 from helpers import *
@@ -81,8 +83,8 @@ def initialize():
 def main():
     global sim_time
 
-    MINTIME = 1000    # Ensure we run for at least this long
-    MAXTIME = 1000000  # No vehicles added after this point.
+    MINTIME = 1000      # Ensure we run for at least this long
+    MAXTIME = 10000000  # No vehicles added after this point.
 
     count = 0
     added = 1
@@ -112,6 +114,9 @@ def main():
 
 
 if __name__ == "__main__":
+    start = time.time()
     seed_rng()
     initialize()
     main()
+    elapsed = time.time() - start
+    logger.info("Time Elapsed: {:.2f}s".format(elapsed))
