@@ -1,77 +1,113 @@
-import numpy as np
+import pickle
+import gzip
 import random
-from threading import Lock
 from pprint import pprint
 
-SEED = 42
+import numpy as np
 
-# TODO: Get from trajectories.csv
-MAKE_TURN  = 0.005
-
-record_lock = Lock()
-records = []
-
-name_seg1 = "10th to 11th"
-name_seg2 = "11th to 12th"
-name_seg3 = "12th to 13th"
-name_seg4 = "13th to 14th"
-
-def seed_rng():
-    """Use preset SEED for random number generators"""
-    np.random.seed(SEED)
-    random.seed(SEED)
+from helpers import *
+from empirical import *
 
 
-def should_vehicle_turn(random_state=None):
-    if random_state:
-        np.random.seed(random_state)
-
-    return np.random.rand() <= MAKE_TURN
-
-
-def random_travel_time(low=0.025, high=0.5, size=5):
-    return np.random.uniform(low, high, size)
+# Road Segment names
+SEG0 = " 9th to 10th"
+SEG1 = "10th to 11th"
+SEG2 = "11th to 12th"
+SEG3 = "12th to 13th"
+SEG4 = "13th to 14th"
+EXIT = "Exit"
 
 
+def get_next_segment(seg):
+    if seg == SEG0:
+        return SEG1
+    elif seg == SEG1:
+        return SEG2
+    elif seg == SEG2:
+        return SEG3
+    elif seg == SEG3:
+        return SEG4
+    elif seg == SEG4:
+        return EXIT
 
-########################## Metadata Helpers ##########################
+############################# TURNING #############################
+P_TURNLEFT, P_TURNRIGHT = get_prob_turning()
 
-def enter(segment_name):
-    return "enter_{}".format(segment_name)
+P_INTERSECTIONS = {
+    SEG0: (P_TURNLEFT, P_TURNRIGHT),  # Left or Right turns
+    SEG1: (0, P_TURNRIGHT),  # Only Right turn
+    SEG2: (0, P_TURNRIGHT),  # Only Right turn
+    SEG3: (0, 0),  # No turns
+    SEG4: (P_TURNLEFT, P_TURNRIGHT),  # Left or Right turns
+}
 
-def leave(segment_name):
-    return "leave_{}".format(segment_name)
-
-def turn(segment_name):
-    return "turn_{}".format(segment_name)
+GO_LEFT     = "LEFT"
+GO_RIGHT    = "RIGHT"
+GO_FORWARD  = "FORWARD"
 
 
-class Records():
+def which_way(segment):
     """
-    Keep a record of the metadata of each car.
+    Determine which way a car will go at a particular intersection.
     """
-    def __init__(self):
-        self.records = []
-        self.lock = Lock()
+    if segment not in P_INTERSECTIONS.keys():
+        raise ValueError("That's not a valid segment")
 
-    def add(self, metadata):
-        # key_start  = enter(name_seg1)
-        # key_end    = leave(name_seg4)
+    pleft, pright = P_INTERSECTIONS[segment]
 
-        # if key_start in metadata and key_end in metadata:
-        #     start = metadata[key_start]
-        #     end = metadata[key_end]
+    p = np.random.random()
+    if p <= pleft:
+        return GO_LEFT
 
-        #     elapsed = "Elapsed: {:.2f}s".format(end - start)
-        #     print(elapsed)
+    p = np.random.random()
+    if p <= pright:
+        return GO_RIGHT
 
-        with self.lock:
-            self.records.append(metadata)
+    return GO_FORWARD
 
-    def get(self):
-        return self.records.copy()
 
-    def __str__(self):
-        return str(self.records)
+############################# Transitions #############################
+ARRIVE = "ARRIVE"
+DEPART = "DEPART"
 
-########################################################################
+def flip(transition):
+    if transition == ARRIVE:
+        return DEPART
+    else:
+        return ARRIVE
+
+# Time to traverse down segment
+TRAVEL_TIMES = {
+    SEG1: 12,
+    SEG2:  8,
+    SEG3:  8,
+    SEG4: 12,
+}
+
+# Time to exit one segment and enter another via an intersection
+# TRANSFER_DELAY = 2
+
+#######################################################################
+
+# def should_vehicle_turn(random_state=None):
+#     if random_state:
+#         np.random.seed(random_state)
+
+#     return np.random.rand() <= MAKE_TURN
+
+
+# def random_travel_time(low=0.025, high=0.5, size=5):
+#     return np.random.uniform(low, high, size)
+
+########################## Metadata Helpers ###########################
+
+def enter(segment):
+    return "enter_{}".format(segment)
+
+def leave(segment):
+    return "leave_{}".format(segment)
+
+def turn(direction):
+    return "turn_{}".format(direction)
+
+#######################################################################
