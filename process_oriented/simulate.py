@@ -7,8 +7,13 @@ from empirical import *
 from util import *
 from threaded import *
 
+# TODO: Remove
+import scipy.stats as stats
+
 
 START_TIME = 1163030800
+MINTIME = 1000      # Ensure we run for at least this long
+MAXTIME = 10000000  # No vehicles added after this point.
 
 sim_state = SimulationState()
 sim_time  = 0
@@ -75,9 +80,6 @@ def initialize():
 def main():
     global sim_time
 
-    MINTIME = 1000      # Ensure we run for at least this long
-    MAXTIME = 10000000  # No vehicles added after this point.
-
     count = 0
     added = 1
     while sim_time < MINTIME or fel.has_vehicles():
@@ -87,7 +89,7 @@ def main():
         proc.handle(fel, sim_time, sim_state)
 
         if count % 100000 == 0:
-            logger.info({"Loop count": count, "Elements in FEL": len(fel.data)})
+            logger.info({"Iteration count": count, "Elements in FEL": len(fel.data)})
 
         # Simulates adding new car to our sim only if MAXTIME not exceeded.
         if sim_time < MAXTIME and (np.random.random() < 0.05):  # With 5% chance
@@ -110,7 +112,39 @@ def main():
 if __name__ == "__main__":
     start = time.time()
     seed_rng()
+
     initialize()
     main()
     elapsed = time.time() - start
     logger.info("Time Elapsed: {:.2f}s".format(elapsed))
+
+
+    def compute_mavg(travel_times):
+        mavg = []
+        N = len(travel_times)
+        for i in range(1, N):
+            mavg.append(np.mean(travel_times[:i]))
+
+        return mavg
+
+    completed_procs = fel.completed
+    arrival_times = np.array(list((map(lambda x: x[0], completed_procs))))
+    exit_times    = np.array(list((map(lambda x: x[1],  completed_procs))))
+    travel_times = exit_times - arrival_times
+
+    mavg = compute_mavg(travel_times)
+    xs = range(len(mavg))
+
+
+    logger.info("Number of cars that traveled 10th to 14th all \
+        the way: {}".format(len(arrival_times)))
+
+    logger.info("Mean  travel time: {:.3f}s".format(np.mean(travel_times)))
+    logger.info("Stdev travel time: {:.3f}s".format(np.std(travel_times)))
+
+
+    # Confidence intervals
+    n = len(travel_times) - 1
+    conf_low, conf_high = stats.t.interval(0.95, n, loc=np.mean(travel_times), scale=stats.sem(travel_times))
+
+    logger.info("95% confidence interval of mean travel time: [{:.3f}, {:.3f}]".format(conf_low, conf_high))

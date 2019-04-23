@@ -27,4 +27,6 @@ plt.xlabel("Arrival Time (s)")
 plt.ylabel("Counts")
 plt.title("Arrival Times Histogram")
 
-fig.savefig("images/arrivals_histogram.png")
+fname = "images/arrivals_histogram.png"
+fig.savefig(fname)
+print("Saving file out to {}".format(fname))

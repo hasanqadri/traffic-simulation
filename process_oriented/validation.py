@@ -29,8 +29,7 @@ for vid in unique_vids:
     travel_time =  end_time - start_time
     travel_times.append(travel_time / 1000)
 
-
-print("EMPIRICAL DATA:")
+print("="*30, " EMPIRICAL DATA ", "="*30)
 print("Number of cars that traveled 10th to 14th all the way: ", len(
     travel_times))
 print("Mean  travel time: {:.3f}s".format(np.mean(travel_times)))
@@ -42,6 +41,12 @@ conf_low, conf_high = stats.t.interval(0.95, n, loc=np.mean(travel_times), scale
 
 print("95% confidence interval of mean travel time: [{:.3f}, {:.3f}]".format(conf_low, conf_high))
 
+fig = plt.figure(figsize=(10, 6), dpi=100)
+plt.hist(travel_times, bins=10)
+plt.xlabel("Travel Time (s)")
+plt.ylabel("Counts")
+plt.title("Empirical Travel Times Histogram")
 
-plt.hist(travel_times, bins=20)
-plt.show()
+fname = "images/empirical_time_histogram.png"
+fig.savefig(fname)
+print("Saving image to {}".format(fname))

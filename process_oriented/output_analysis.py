@@ -71,4 +71,6 @@ plt.xlabel("Travel Time (s)")
 plt.ylabel("Counts")
 plt.title("Travel Times Histogram")
 
-fig.savefig("images/travel_time_histogram.png")
+outname = "images/travel_time_histogram.png"
+fig.savefig(outname)
+print("Saving figure out to ", outname)
