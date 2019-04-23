@@ -4,7 +4,7 @@ import random
 from pprint import pprint
 
 import logging
-from logging import debug, info, warning
+# from logging import debug, info, warning
 
 import numpy as np
 
@@ -13,7 +13,16 @@ from empirical import *
 
 ############################# LOGGING #################################
 
-logging.basicConfig(filename='run.log', level=logging.DEBUG)
+import logging
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)-5.5s]  %(message)s",
+    handlers=[
+        logging.FileHandler("run.log"),
+        logging.StreamHandler()
+    ]
+)
+logger = logging.getLogger()
 
 
 ############################# ROAD SEGMENTS ###########################
@@ -45,7 +54,7 @@ P_INTERSECTIONS = {
     SEG0: (P_TURNLEFT, P_TURNRIGHT),  # Left or Right turns
     SEG1: (0, P_TURNRIGHT),  # Only Right turn
     SEG2: (0, P_TURNRIGHT),  # Only Right turn
-    SEG3: (0, 0),  # No turns
+    SEG3: (0, 0),  # No turns here, only forward
     SEG4: (P_TURNLEFT, P_TURNRIGHT),  # Left or Right turns
 }
 
@@ -59,16 +68,16 @@ def which_way(segment):
     Determine which way a car will go at a particular intersection.
     """
     if segment not in P_INTERSECTIONS.keys():
-        raise ValueError("That's not a valid segment")
+        raise ValueError("That's not a valid segment: {}".format(segment))
 
     pleft, pright = P_INTERSECTIONS[segment]
-
     p = np.random.random()
-    if p <= pleft:
+
+    if p < pleft:
         return GO_LEFT
 
     p = np.random.random()
-    if p <= pright:
+    if p < pright:
         return GO_RIGHT
 
     return GO_FORWARD

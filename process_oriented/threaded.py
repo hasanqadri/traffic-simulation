@@ -21,8 +21,8 @@ SIG4 = "14th Signal"
 SIG0_LEFT = "10th Left Signal"
 SIG4_LEFT = "14th Left Signal"
 
-RED    = 1
-GREEN  = 2
+RED    = "RED  "
+GREEN  = "GREEN"
 
 class Signal(object):
     def __init__(self, name, green_time, red_time):
@@ -107,9 +107,10 @@ class SimulationState(object):
         if direction == GO_LEFT:
             if segment == SEG0:
                 return signals[SIG0_LEFT]
-            elif segment == SEG3:
+            elif segment == SEG4:
                 return signals[SIG4_LEFT]
             else:
+                print("DIR: {}    SEG: {}".format(direction, segment))
                 raise ValueError("Direction not supported at this segment")
 
         if segment == SEG0:
@@ -279,7 +280,7 @@ class VehicleProcess(Process):
         self.metadata[leave(segment)] = sim_time
 
         # Determine which way to go from here.
-        direction = which_way(segment, transition)
+        direction = which_way(segment)
 
         # First, get the signal belonging to this intersection
         signal = sim_state.get_signal(direction, segment)
@@ -306,7 +307,7 @@ class VehicleProcess(Process):
 
         # EDGE Case: If we're exiting 14th, mark the special key
         # and add it to the completed list.
-        if next_seg == EXIT:
+        if self.segment == EXIT:
             self.metadata["END"] = new_time
             # Add this process to the completed pile.
             proc = self
@@ -348,7 +349,7 @@ class SignalProcess(Process):
 
     def __init__(self, start_time, fel, sim_state, signame):
         proc_type = signame
-        proc_id   = "signal"
+        proc_id   = np.random.randint(1, int(1e9))
 
         super(SignalProcess, self).__init__(start_time, proc_type, proc_id,
                                                 fel)

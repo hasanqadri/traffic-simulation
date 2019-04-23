@@ -5,11 +5,27 @@ from empirical import *
 from util import *
 from threaded import *
 
+# import logging
+# logging.basicConfig(
+#     level=logging.DEBUG,
+#     format="%(asctime)s [%(levelname)-5.5s]  %(message)s",
+#     handlers=[
+#         logging.FileHandler("run.log"),
+#         logging.StreamHandler()
+#     ]
+# )
+# logger = logging.getLogger()
+
+
+START_TIME = 1163030800
+
 sim_state = SimulationState()
 sim_time  = 0
 fel       = FutureEventList()
 events    = {}
 numEvents = 0
+
+interarrival_times = []
 
 # Signal name, green time, red time
 signal_timings = [
@@ -22,28 +38,26 @@ signal_timings = [
     (SIG4_LEFT, 12.4,  3.6),  # 14th street, left turn
 ]
 
-def getInterArrivalTime():
-    global numEvents
-    global events
+def get_random_interarrival_time():
+    N_keep = len(interarrival_times)
+    i = np.random.randint(0, N_keep)
+    if (interarrival_times[i] < sim_time):
+        return abs(interarrival_times[i] - sim_time) + interarrival_times[i] + 5000
+    return interarrival_times[i]
 
-    events = compressed_readpkl(DATAPATH)
-    #Interarrival times
-    interArrivalTimes = [0]
+
+def init_interarrival_times():
+    global interarrival_times
+    interarrival_times = [0]
 
     # Dividing by 10k limits range of interarrival times but GREATLY speeds
     # up the simulation
-    for n in range(int(numEvents/10000)):
-        interArrivalTimes.append(0)
-
-    for z in range(int(numEvents/10000)):
-        interArrivalTimes[z] = events[str(z)]['Epoch_ms'] - START_TIME
-    i = random.randint(0, int(numEvents/10000))
-    if (interArrivalTimes[i] < currentTime):
-        return abs(interArrivalTimes[i] - currentTime) + interArrivalTimes[i] + 5000
-    return interArrivalTimes[i]
+    N_keep = numEvents // 10000
+    for _ in range(N_keep):
+        interarrival_times.append(events[str(z)]['Epoch_ms'] - START_TIME)
 
 
-def initialize():
+def init_signals():
     global numEvents
     numEvents = len(EVENTS)
 
@@ -51,34 +65,50 @@ def initialize():
         signal = Signal(signame, green_time, red_time)
 
         sim_state.add_signal(signame, signal)
-        debug(signal)
+        # logger.debug(signal)
 
-        # Creates a process. Assume it starts green, so switch when
-        # it turns red.
+        # Creates a process. Assume it starts green, so switch when turns red.
         new_time = sim_time + red_time
-        SignalProcess(new_time, fel, sim_state, signame)
+        SignalProcess(new_time, fel, sim_state, signame)  # Adds self to FEL.
 
 
-    debug("FEL size after initialization: ".format(fel.size()))
-    debug(fel.data)
+def initialize():
+    init_interarrival_times()
+    init_signals()
+
+    # Now, add a single VehicleProcess based on the timings.
+    arrival_time = get_random_interarrival_time()
+    VehicleProcess(fel, arrival_time)  # Adds self to FEL.
+
+    logger.debug("FEL size after initialization: {}".format(fel.size()))
+    logger.debug(fel.data)
+
 
 
 def main():
-    MAXTIME = 100
+    MAXTIME = 1e5
     global sim_time
 
     count = 0
-
+    added = 1
     while sim_time < MAXTIME and not fel.empty():
         new_time, proc = fel.pop()
-        debug("Curr: {:.1f}    New: {:.1f}".format(sim_time, new_time))
-        debug("GOT PROC: {}".format(proc))
         sim_time = new_time
         proc.handle(fel, sim_time, sim_state)
 
+        # Simulates adding new car to our sim
+        if (np.random.random() < 0.05):  # With 5% chance
+            logger.info("Adding new vehicle")
+            added += 1
+            arrival_time = get_random_interarrival_time()
+            VehicleProcess(fel, arrival_time)  # Adds self to FEL.
+
         count += 1
 
-    debug("Count: {}".format(count))
+    logger.debug("Count: {}".format(count))
+    logger.debug("Vehicles Simulated: {}".format(added))
+    logger.debug("Remaining: {}".format(fel.completed))
+    logger.debug("Completed: {}".format(fel.completed))
 
 
 if __name__ == "__main__":
