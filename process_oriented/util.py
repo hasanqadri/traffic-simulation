@@ -3,12 +3,20 @@ import gzip
 import random
 from pprint import pprint
 
+import logging
+from logging import debug, info, warning
+
 import numpy as np
 
 from helpers import *
 from empirical import *
 
+############################# LOGGING #################################
 
+logging.basicConfig(filename='run.log', level=logging.DEBUG)
+
+
+############################# ROAD SEGMENTS ###########################
 # Road Segment names
 SEG0 = " 9th to 10th"
 SEG1 = "10th to 11th"

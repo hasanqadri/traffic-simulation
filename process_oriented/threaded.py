@@ -219,7 +219,6 @@ class Process(object):
 
 
     def __str__(self):
-        # out =   "="*80
         out  = ""
         out += "Process: {}\n".format(self.name)
         out += "Data: {}".format(self.metadata)
@@ -347,7 +346,7 @@ class VehicleProcess(Process):
 
 class SignalProcess(Process):
 
-    def __init__(self, fel, start_time, signame):
+    def __init__(self, start_time, fel, sim_state, signame):
         proc_type = signame
         proc_id   = "signal"
 
@@ -355,14 +354,24 @@ class SignalProcess(Process):
                                                 fel)
 
         self.signame = signame
+        self.signal = sim_state.get_signal_by_name(self.signame)
 
     def handle(self, fel, sim_time, sim_state):
         """
         To be implemented by every Process type differently.
         """
-        signal = sim_state.get_signal_by_name(self.signame)
-        signal.flip()
-        new_time = signal.next_flip_time(use_epsilon=False)
+        self.signal.flip(sim_time)
+        new_time = self.signal.next_flip_time(use_epsilon=False)
 
         # Schedule the next flip of the signal.
         self.waitUntil(fel, new_time)
+
+    def __str__(self):
+        out = "Process: {}    Last Flipped: {:.1f}".format(self.name,
+            self.signal.last_flipped)
+        return out
+
+    def __repr__(self):
+        out = "Process: {}    Last Flipped: {:.1f}".format(self.name,
+            self.signal.last_flipped)
+        return out

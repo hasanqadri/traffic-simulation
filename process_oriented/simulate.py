@@ -51,15 +51,36 @@ def initialize():
         signal = Signal(signame, green_time, red_time)
 
         sim_state.add_signal(signame, signal)
-        print(signal)
+        debug(signal)
 
         # Creates a process. Assume it starts green, so switch when
-        #
-        SignalProcess(fel, sim_time + red_time, signame)
+        # it turns red.
+        new_time = sim_time + red_time
+        SignalProcess(new_time, fel, sim_state, signame)
 
-    print(fel.size())
-    print(fel.data)
+
+    debug("FEL size after initialization: ".format(fel.size()))
+    debug(fel.data)
+
+
+def main():
+    MAXTIME = 100
+    global sim_time
+
+    count = 0
+
+    while sim_time < MAXTIME and not fel.empty():
+        new_time, proc = fel.pop()
+        debug("Curr: {:.1f}    New: {:.1f}".format(sim_time, new_time))
+        debug("GOT PROC: {}".format(proc))
+        sim_time = new_time
+        proc.handle(fel, sim_time, sim_state)
+
+        count += 1
+
+    debug("Count: {}".format(count))
 
 
 if __name__ == "__main__":
     initialize()
+    main()
