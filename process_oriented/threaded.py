@@ -3,6 +3,8 @@ This file holds all the Classes and Functions that will be used to support
 threads in the simulation.
 """
 
+from functools import total_ordering
+
 from heapq import heappush, heappop
 import numpy as np
 import threading
@@ -19,8 +21,8 @@ SIG4 = "14th Signal"
 SIG0_LEFT = "10th Left Signal"
 SIG4_LEFT = "14th Left Signal"
 
-RED    = 1
-GREEN  = 2
+RED    = "RED  "
+GREEN  = "GREEN"
 
 class Signal(object):
     def __init__(self, name, green_time, red_time):
@@ -63,7 +65,7 @@ class Signal(object):
             if color == GREEN:
                 flip_time = self.green_time
 
-            estimate = self.last_flipped + self.green_time + epsilon
+            estimate = self.last_flipped + flip_time + epsilon
 
         return estimate
 
@@ -88,17 +90,6 @@ class SimulationState(object):
     def __init__(self):
         self.signals = {}
 
-        # for signame in [SIG0, SIG1, SIG2, SIG3]:
-        #     flip_time = 2.25  # TODO: Get this time empirically.
-        #     signals[signame] = Signal(signame, flip_time)
-
-        # # Left turn signals
-        # for signame in [SIG0_LEFT, SIG3_LEFT]:
-        #     flip_time = 2.25  # TODO: Get this time empirically.
-        #     signals[signame] = Signal(signame, flip_time)
-
-        # self.signals = signals
-
 
     def add_signal(self, signame, signal):
         self.signals[signame] = signal
@@ -116,9 +107,10 @@ class SimulationState(object):
         if direction == GO_LEFT:
             if segment == SEG0:
                 return signals[SIG0_LEFT]
-            elif segment == SEG3:
+            elif segment == SEG4:
                 return signals[SIG4_LEFT]
             else:
+                print("DIR: {}    SEG: {}".format(direction, segment))
                 raise ValueError("Direction not supported at this segment")
 
         if segment == SEG0:
@@ -150,6 +142,9 @@ class FutureEventList(object):
         self.completed       = []  # Completed processes.
         self.completed_lock  = threading.Lock()
 
+        # Track how many VehicleProcesses this holds
+        self.vehicle_count   = 0
+
 
     def size(self):
         n_elements = None
@@ -163,9 +158,18 @@ class FutureEventList(object):
         return self.size() == 0
 
 
-    def push(self, element, priority):
+    def has_vehicles(self):
         with self.lock:
-            heappush(self.data, (priority, element))
+            vc = self.vehicle_count
+
+        return (vc > 0)
+
+    def push(self, proc, priority):
+        with self.lock:
+            heappush(self.data, (priority, proc))
+
+            if isinstance(proc, VehicleProcess):
+                self.vehicle_count += 1
 
 
     def pop(self):
@@ -174,6 +178,9 @@ class FutureEventList(object):
 
         with self.lock:
             out = heappop(self.data)
+            _, proc = out
+            if isinstance(proc, VehicleProcess):
+                self.vehicle_count -= 1
 
         return out
 
@@ -197,7 +204,7 @@ class FutureEventList(object):
     def get_completed(self):
         return self.completed
 
-
+@total_ordering
 class Process(object):
     """
     An interface of what different processes must be able to handle.
@@ -228,10 +235,36 @@ class Process(object):
 
 
     def __str__(self):
-        out =   "="*80
-        out +=  "Process: {}\n".format(self.name)
-        out +=  "Data: {}".format(self.metadata)
+        out  = ""
+        out += "Process: {}\n".format(self.name)
+        out += "Data: {}".format(self.metadata)
         return out
+
+    def __repr__(self):
+        out  = ""
+        out += "Process: {}\n".format(self.name)
+        out += "Data: {}".format(self.metadata)
+        return out
+
+    # These functions handle tie-breakers. Tie-breakers handled by the
+    # process id.
+    def __eq__(self, other):
+        if not isinstance(other, Process):
+            return False
+
+        return self.proc_id == other.proc_id and self.name == other.name
+
+    def __ne__(self, other):
+        if not isinstance(other, Process):
+            return True
+
+        return self.proc_id != other.proc_id or self.name != other.name
+
+    def __lt__(self, other):
+        if not isinstance(other, Process):
+            return False
+
+        return self.proc_id < other.proc_id
 
 
 class VehicleProcess(Process):
@@ -262,26 +295,24 @@ class VehicleProcess(Process):
         self.metadata[leave(segment)] = sim_time
 
         # Determine which way to go from here.
-        direction = which_way(segment, transition)
+        direction = which_way(segment)
 
         # First, get the signal belonging to this intersection
         signal = sim_state.get_signal(direction, segment)
-        # If the signal is green, there's a small transfer time to get out of segment.
-        new_time = sim_time + 5
+
+        # If the signal is green, there's a small transfer time to get out of this segment.
+        new_time = sim_time + INTERSECTION_DELAY
 
         # If the signal is not green, determine which time it will become
-        # green, and add that to the transfer time.
+        # green, and make that the new_time.
         # EDGE Case: signal is None because SIG3 doesn't exist.
         if signal is not None and not signal.is_green():
-            new_time += signal.next_flip_time()
+            next_flip_time = signal.next_flip_time(use_epsilon=False)
+            logger.debug("Light is red until: {}".format(next_flip_time))
+            new_time = signal.next_flip_time() + INTERSECTION_DELAY
 
         if direction in [GO_LEFT, GO_RIGHT]:
-            # We are turning. Mark it in metadata.
-            self.metadata[turn(direction)] = (new_time, segment)
-
-            # Add this process to the completed pile.
-            proc = self
-            fel.add_completed(proc)
+            # Nothing to do, discard this process.
             return
 
         # We're going forward. Update where we'll go next.
@@ -289,11 +320,14 @@ class VehicleProcess(Process):
 
         # EDGE Case: If we're exiting 14th, mark the special key
         # and add it to the completed list.
-        if next_seg == EXIT:
-            self.metadata["END"] = new_time
-            # Add this process to the completed pile.
-            proc = self
-            fel.add_completed(proc)
+        if self.segment == EXIT:
+            # We only care about INIT and END
+            time_arrive = self.metadata["INIT"]
+            time_exit = new_time
+            keep_data = (time_arrive, time_exit)
+
+            # Add this process's keep_data to the completed pile.
+            fel.add_completed(keep_data)
             return
 
         else:
@@ -313,8 +347,8 @@ class VehicleProcess(Process):
         # Transition to departure now.
         self.transition = flip(transition)
 
-        # 10 second delay to get through to intersection.
-        new_time = sim_time + 10
+        # Add time to get through this segment to intersection.
+        new_time = sim_time + TRAVEL_TIMES[segment]
 
         # Add self back onto FEL.
         self.waitUntil(fel, new_time)
@@ -329,22 +363,32 @@ class VehicleProcess(Process):
 
 class SignalProcess(Process):
 
-    def __init__(self, fel, start_time, signame):
+    def __init__(self, start_time, fel, sim_state, signame):
         proc_type = signame
-        proc_id   = "signal"
+        proc_id   = np.random.randint(1, int(1e9))
 
-        super(VehicleProcess, self).__init__(start_time, proc_type, proc_id,
+        super(SignalProcess, self).__init__(start_time, proc_type, proc_id,
                                                 fel)
 
         self.signame = signame
+        self.signal = sim_state.get_signal_by_name(self.signame)
 
     def handle(self, fel, sim_time, sim_state):
         """
         To be implemented by every Process type differently.
         """
-        signal = sim_state.get_signal_by_name(self.signame)
-        signal.flip()
-        new_time = signal.next_flip_time(use_epsilon=False)
+        self.signal.flip(sim_time)
+        new_time = self.signal.next_flip_time(use_epsilon=False)
 
         # Schedule the next flip of the signal.
         self.waitUntil(fel, new_time)
+
+    def __str__(self):
+        out = "Process: {}    Last Flipped: {:.1f}".format(self.name,
+            self.signal.last_flipped)
+        return out
+
+    def __repr__(self):
+        out = "Process: {}    Last Flipped: {:.1f}".format(self.name,
+            self.signal.last_flipped)
+        return out

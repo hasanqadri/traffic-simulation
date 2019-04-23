@@ -3,12 +3,29 @@ import gzip
 import random
 from pprint import pprint
 
+import logging
+# from logging import debug, info, warning
+
 import numpy as np
 
 from helpers import *
 from empirical import *
 
+############################# LOGGING #################################
 
+import logging
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)-5.5s]  %(message)s",
+    handlers=[
+        # logging.FileHandler("run.log"),
+        logging.StreamHandler(),
+    ]
+)
+logger = logging.getLogger()
+
+
+############################# ROAD SEGMENTS ###########################
 # Road Segment names
 SEG0 = " 9th to 10th"
 SEG1 = "10th to 11th"
@@ -37,7 +54,7 @@ P_INTERSECTIONS = {
     SEG0: (P_TURNLEFT, P_TURNRIGHT),  # Left or Right turns
     SEG1: (0, P_TURNRIGHT),  # Only Right turn
     SEG2: (0, P_TURNRIGHT),  # Only Right turn
-    SEG3: (0, 0),  # No turns
+    SEG3: (0, 0),  # No turns here, only forward
     SEG4: (P_TURNLEFT, P_TURNRIGHT),  # Left or Right turns
 }
 
@@ -51,16 +68,16 @@ def which_way(segment):
     Determine which way a car will go at a particular intersection.
     """
     if segment not in P_INTERSECTIONS.keys():
-        raise ValueError("That's not a valid segment")
+        raise ValueError("That's not a valid segment: {}".format(segment))
 
     pleft, pright = P_INTERSECTIONS[segment]
-
     p = np.random.random()
-    if p <= pleft:
+
+    if p < pleft:
         return GO_LEFT
 
     p = np.random.random()
-    if p <= pright:
+    if p < pright:
         return GO_RIGHT
 
     return GO_FORWARD
@@ -76,28 +93,16 @@ def flip(transition):
     else:
         return ARRIVE
 
-# Time to traverse down segment
+# Time to traverse down a segment
 TRAVEL_TIMES = {
-    SEG1: 12,
-    SEG2:  8,
-    SEG3:  8,
-    SEG4: 12,
+    SEG1: 16.5,
+    SEG2: 12.5,
+    SEG3: 12.5,
+    SEG4: 16.5,
 }
 
 # Time to exit one segment and enter another via an intersection
-# TRANSFER_DELAY = 2
-
-#######################################################################
-
-# def should_vehicle_turn(random_state=None):
-#     if random_state:
-#         np.random.seed(random_state)
-
-#     return np.random.rand() <= MAKE_TURN
-
-
-# def random_travel_time(low=0.025, high=0.5, size=5):
-#     return np.random.uniform(low, high, size)
+INTERSECTION_DELAY = 5
 
 ########################## Metadata Helpers ###########################
 
