@@ -1,8 +1,17 @@
+"""
+NOTE: This will not run on PACE as-is. Comment out the "import seaborn" line.
+"""
+
 from helpers import *
 
 import numpy as np
 from matplotlib import pyplot as plt
-import seaborn as sns; sns.set()
+
+try:
+    import seaborn as sns; sns.set()
+    pass
+except:
+    print("Seaborn is not installed. Proceeding without it.")
 
 
 filename = "vehicle_metadata.pkl"
