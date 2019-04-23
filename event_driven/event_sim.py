@@ -102,16 +102,17 @@ def getInterArrivalTime():
     global arrivalTimes
     #Interarrival times
     interArrivalTimes = [0]
-    for n in range(int(numEvents/10000)):  #Dividing by 1000 limits range of interarrival times but GREATLY speeds up the simulation
+    for n in range(len(events.keys())):  #Dividing by 1000 limits range of interarrival times but GREATLY speeds up the simulation
         interArrivalTimes.append(0)
-    for z in range(int(numEvents/10000)):
-        interArrivalTimes[z] = events[str(z)]['Epoch_ms'] - START_TIME;
-    i = random.randint(0, int(numEvents/10000))
+    for z in range(len(events.keys())):
+        interArrivalTimes[z] = events[str(z)]['Epoch_ms'];
+    i = random.randint(0, len(events.keys()))
+
     if (interArrivalTimes[i] < currentTime):  #Ensure the inter arrival times move forward
-        arrivalTimes.append(abs(interArrivalTimes[i] - currentTime) + interArrivalTimes[i] + 5)
-        return abs(interArrivalTimes[i] - currentTime) + interArrivalTimes[i] + 5
+        arrivalTimes.append(interArrivalTimes[i])
+        return abs(interArrivalTimes[i] - currentTime) + currentTime + 50
     arrivalTimes.append(interArrivalTimes[i])
-    return interArrivalTimes[i]; 
+    return interArrivalTimes[i] + 5; 
 
 #Calculate chance for left turn for cars at any given intersection
 def getRightTurnChance():
@@ -177,6 +178,10 @@ def executeEvent(event):
         fourteenthIntersection(event);
     elif (event[1][0] == 'FourteenthSegment'):
         fourteenthSegment(event)
+        numCars = numCars + 1
+        arrivalTime = getInterArrivalTime()
+        heappush(FEL,(arrivalTime, ['NinthSegment', leftTurnChance, rightTurnChance, arrivalTime]))
+        ninthSegment(event)
 
 # Event - Entering segment before 10th intersection
 # Determines if car takes left or right turn at next intersection and schedules that event.
@@ -426,8 +431,8 @@ def main():
     t0 = time.clock();
     wt0 = time.time();
     y = 0;
-    numIterations = 10
-    #Run Simulation
+    numIterations = 40
+    #Run Simulation multiple times
     while y < numIterations:
         getHistoricalEvents();
         runSimulation();
@@ -452,10 +457,9 @@ def main():
     plot.ylabel('Probability')
     plot.show()
 
-    print(arrivalTimes)
     plot.hist(arrivalTimes, bins=20, density=1, alpha=0.5, edgecolor='#E6E6E6', color='steelblue') 
     #axis([xmin,xmax,ymin,ymax])
-    plot.xlabel('Interarrival Times (seconds)')
+    plot.xlabel('Interarrival Times')
     plot.ylabel('Probability')
     plot.show()
 
@@ -464,7 +468,7 @@ def runSimulation():
     global FEL;
     global currentTime;
     global START_TIME
-    while currentTime < START_TIME + 400:
+    while currentTime < START_TIME + 300000 or len(FEL) == 0:
         next_item = heappop(FEL);                                #Get next event
         #print(next_item)
         currentTime = currentTime + (next_item[0] - currentTime) #Advance simulation time
