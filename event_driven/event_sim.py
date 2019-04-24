@@ -9,7 +9,6 @@ import random
 
 #Reading JSON file imports (Converted CSV to JSON in preprocessing)
 import json
-import matplotlib.pyplot as plt
 import scipy.stats
 
 #Initializing simulation
@@ -471,42 +470,6 @@ def main():
     print('Mean travel times: ' + str(np.mean(carTravelTimes)) + ' seconds')
     print('Stdev travel times: ' + str(np.std(carTravelTimes)) + ' seconds')
     print('Mean travel time 95% Confidence Interval: ' + str(mean_confidence_interval(carTravelTimes)) + ' seconds')
-
-    #The below commented code generates a steady-state graph for the moving average.
-    # After running it, it looks like after 15 of the initial cars it stabilizes, so I use this going forward.
-    def plotting():
-        mavg = compute_mavg(carTravelTimes)
-        xs = range(len(mavg))
-        fig = plt.figure(figsize=(10, 6), dpi=100)
-        plt.plot(xs, mavg, label="Moving Average of Travel Time")
-        # plt.axvline(x=15, color="red", label="Cutoff")
-        plt.xlabel("Samples taken")
-        plt.ylabel("Mean Travel Time of Samples (s)")
-        plt.title("Moving Average of Mean Travel Time")
-        plt.legend()
-
-        fig.savefig("images/mavg30.png")
-        # plt.show()
-
-        fig = plt.figure(figsize=(10, 6), dpi=100)
-        plt.hist(carTravelTimes, bins=15, alpha=0.5)
-        # plt.axis([40,200, None, None])
-        plt.xlabel('Car Travel Times (seconds)')
-        plt.ylabel('Count')
-
-        fig.savefig("images/travel_times_hist30.png")
-        # plt.show()
-
-        fig = plt.figure(figsize=(10, 6), dpi=100)
-        plt.hist(arrivalTimes, bins=20, alpha=0.5)
-        #axis([xmin,xmax,ymin,ymax])
-        plt.xlabel('Interarrival Times')
-        plt.ylabel('Count')
-
-        fig.savefig("images/interarrival_times30.png")
-
-    # plotting()
-    # plt.show()
 
 #Our simulation engine
 def runSimulation():
