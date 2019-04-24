@@ -9,10 +9,12 @@ import math
 import random
 #Reading JSON file imports (Converted CSV to JSON in preprocessing)
 import json
-import matplotlib.pyplot as plot
+import matplotlib.pyplot as plt
 import scipy.stats
 
+import seaborn as sns; sns.set()
 
+import time
 
 #Initializing simulation
 FEL = [];
@@ -219,7 +221,7 @@ def tenthIntersection(event):
             carTravelTimes10.append(event[0] - event[1][3])
     else:
         if (curr10Light == 'green'):
-            heappush(FEL,(event[0] + 5, ['TenthSegment', event[1][1], event[1][2], event[1][3], 0]))
+            heappush(FEL,(event[0] + 13, ['TenthSegment', event[1][1], event[1][2], event[1][3], 0]))
         else:
             heappush(FEL,(event[0] + 10, ['TenthIntersection', event[1][1], event[1][2], event[1][3], 0]))
             tenDelay = tenDelay + 10
@@ -236,7 +238,7 @@ def tenthSegment(event):
         heappush(FEL,(event[0] + 10, ['EleventhIntersection', event[1][1], event[1][2], event[1][3], 1]))
         return 1;
     else:
-        heappush(FEL,(event[0]+ 10, ['EleventhIntersection', event[1][1], event[1][2], event[1][3], 0]))
+        heappush(FEL,(event[0]+ 12, ['EleventhIntersection', event[1][1], event[1][2], event[1][3], 0]))
         return 0;
 
 # Event - Entering 11th intersection
@@ -252,7 +254,7 @@ def eleventhIntersection(event):
             carTravelTimes11.append(event[0] - event[1][3])
     else:
         if (curr11Light == 'green'):
-            heappush(FEL,(event[0] + 5, ['EleventhSegment', event[1][1], event[1][2], event[1][3], 0]))
+            heappush(FEL,(event[0] + 7, ['EleventhSegment', event[1][1], event[1][2], event[1][3], 0]))
         else:
             heappush(FEL,(event[0] + 10, ['EleventhIntersection', event[1][1], event[1][2], event[1][3], 0]))
             elevenDelay = elevenDelay + 10
@@ -433,7 +435,7 @@ def mean_confidence_interval(data, confidence=0.95):
     n = len(a)
     m, se = np.mean(a), scipy.stats.sem(a)
     h = se * scipy.stats.t.ppf((1 + confidence) / 2., n-1)
-    return m, m-h, m+h
+    return (m-h, m+h)
 
 
 def compute_mavg(travel_times):
@@ -452,74 +454,96 @@ def main():
     #Initialize event list with first arrival
     getHistoricalEvents();
     #Start timer
-    t0 = time.clock();
+    t0 = time.time();
     wt0 = time.time();
     y = 0;
-    numIterations = 20
+
+    numIterations = 1
     #Run Simulation
     while y < numIterations:
         getHistoricalEvents();
         runSimulation();
-        print(y)
+        # print(y)
         warmedUp = False;
         numCarsWarmup = 0;
         y = y + 1
     #End Timer
-    t1 = time.clock();
+    t1 = time.time();
     wt1 = time.time();
-    print("Runtime: " + str(t1 - t0) )
-    print('Average number of Cars: ' + str(numCars/numIterations))
-    print('Total numbr of cars: ' + str(numCars))
-    print('Length of car travel time: ' + str(len(carTravelTimes)))
-    print('Average number of Right Turns: ' + str(rightTurn/numIterations))
-    print('Average number of Left Turns: ' + str(leftTurn/numIterations))
-    print('Mean of car travel times: ' + str(np.mean(carTravelTimes)) + ' seconds')
-    print('Standard Deviation of car travel times: ' + str(np.std(carTravelTimes)) + ' seconds')
-    print('Mean of car travel times: ' + str(mean_confidence_interval(carTravelTimes)) + ' seconds')
-    print('Variance Car travel times: ' + str(np.var(carTravelTimes)) + ' seconds')
-    print('Mean of car travel times turning at 10th: ' + str(np.mean(carTravelTimes10)) + ' seconds')
-    print('Mean of car travel times turning at 11th: ' + str(np.mean(carTravelTimes11)) + ' seconds')
-    print('Mean of car travel times turning at 12th: ' + str(np.mean(carTravelTimes12)) + ' seconds')
-    print('Mean of car travel times turning at 14th: ' + str(np.mean(carTravelTimes14)) + ' seconds')
+    print("Runtime: " + str(t1 - t0) + " seconds")
+    # print('Average number of Cars: ' + str(numCars/numIterations))
+    # print('Total numbr of cars: ' + str(numCars))
+    print('Size of carTravelTimes: ' + str(len(carTravelTimes)))
+    # print('Average number of Right Turns: ' + str(rightTurn/numIterations))
+    # print('Average number of Left Turns: ' + str(leftTurn/numIterations))
+    print('Mean travel times: ' + str(np.mean(carTravelTimes)) + ' seconds')
+    print('Stdev travel times: ' + str(np.std(carTravelTimes)) + ' seconds')
+    print('Mean travel time 95% Confidence Interval: ' + str(mean_confidence_interval(carTravelTimes)) + ' seconds')
+    # print('Variance Car travel times: ' + str(np.var(carTravelTimes)) + ' seconds')
+    # print('Mean of car travel times turning at 10th: ' + str(np.mean(carTravelTimes10)) + ' seconds')
+    # print('Mean of car travel times turning at 11th: ' + str(np.mean(carTravelTimes11)) + ' seconds')
+    # print('Mean of car travel times turning at 12th: ' + str(np.mean(carTravelTimes12)) + ' seconds')
+    # print('Mean of car travel times turning at 14th: ' + str(np.mean(carTravelTimes14)) + ' seconds')
 
     #The below commented code generates a steady-state graph for the moving average.
     # After running it, it looks like after 15 of the initial cars it stabilizes, so I use this going forward.
     mavg = compute_mavg(carTravelTimes)
     xs = range(len(mavg))
-    plot.plot(xs, mavg, label="Moving Average of Travel Time")
 
-    plot.axvline(x=15, color="red", label="Cutoff")
-    plot.xlabel("Samples taken")
-    plot.ylabel("Mean Travel Time of Samples (s)")
-    plot.title("Moving Average of Mean Travel Time")
-    plot.legend()
-    plot.show()
 
-    plot.hist(carTravelTimes, bins=15, alpha=0.5, edgecolor='#E6E6E6', color='#EE6666')
-    plot.axis([40,200, None, None])
-    plot.xlabel('Car Travel Times (seconds)')
-    plot.ylabel('Count')
-    plot.show()
+    fig = plt.figure(figsize=(10, 6), dpi=100)
 
-    plot.hist(arrivalTimes, bins=20, alpha=0.5, edgecolor='#E6E6E6', color='steelblue')
+    plt.plot(xs, mavg, label="Moving Average of Travel Time")
+    # plt.axvline(x=15, color="red", label="Cutoff")
+    plt.xlabel("Samples taken")
+    plt.ylabel("Mean Travel Time of Samples (s)")
+    plt.title("Moving Average of Mean Travel Time")
+    plt.legend()
+
+    fig.savefig("images/mavg30.png")
+    # plt.show()
+
+    fig = plt.figure(figsize=(10, 6), dpi=100)
+    plt.hist(carTravelTimes, bins=15, alpha=0.5)
+    # plt.axis([40,200, None, None])
+    plt.xlabel('Car Travel Times (seconds)')
+    plt.ylabel('Count')
+
+    fig.savefig("images/travel_times_hist30.png")
+    # plt.show()
+
+    fig = plt.figure(figsize=(10, 6), dpi=100)
+    plt.hist(arrivalTimes, bins=20, alpha=0.5)
     #axis([xmin,xmax,ymin,ymax])
-    plot.xlabel('Interarrival Times')
-    plot.ylabel('Count')
-    plot.show()
+    plt.xlabel('Interarrival Times')
+    plt.ylabel('Count')
+
+    fig.savefig("images/interarrival_times30.png")
+    # plt.show()
 
 #Our simulation engine
 def runSimulation():
     global FEL;
     global currentTime;
     global START_TIME
-    while currentTime < START_TIME + 200000:
+
+    start = time.time()
+
+    while currentTime < START_TIME + 30000000:
         next_item = heappop(FEL);                                #Get next event
         #print(next_item)
-        currentTime = currentTime + (next_item[0] - currentTime) #Advance simulation time
+        currentTime = next_item[0] #Advance simulation time
         executeEvent(next_item);                                 #Update state variables and counters and generate future events
     currentTime = START_TIME;
     FEL = [];
 
+    end = time.time()
+
+    # print("TIME ELAPSED: {:.3f}s".format(end - start))
+
 
 if __name__ == "__main__":
+    SEED = 42
+    np.random.seed(SEED)
+    random.seed(SEED)
     main()
