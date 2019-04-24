@@ -34,7 +34,7 @@ LENGTH        = 500
 #LENGTH       = 450
 LANES         = 3
 INTERSECTIONS = 4
-TIME_STEPS    = 3000
+TIME_STEPS    = 100
 MOD           = 100 # light is red every MOD step
 MAXMAX        = 6  # max max speed
 
@@ -433,57 +433,6 @@ for t in range(TIME_STEPS):
 
 
 # In[923]:
-
-
-# Data output for checkpoint
-deltas = calculate_deltas(data)
-deltas = deltas[1000:]
-
-print("Travel Times (ticks): Mean: %.2f, SD: %.0f" % (np.mean(deltas), np.std(deltas)))
-print("%d cars completed the journey." % len(deltas))
-print("%.2f cars per second" % (len(deltas) / TIME_STEPS))
-
-
-#######################################
-# REMOVE THE EXIT CALL TO GET THE VIZ #
-#######################################
-exit()
-
-# In[924]:
-
-
-# Preliminary Data Viz - run this box twice
-deltas = calculate_deltas(data)
-deltas = deltas[1000:]
-
-import matplotlib.pyplot as plt
-plt.hist(deltas, bins='auto')
-plt.title("Cellular Automata Travel Times")
-plt.xlabel("Time To Traverse Corridor")
-plt.ylabel("Frequency")
-plt.show()
-
-
-# In[925]:
-
-
-#Moving Average
-import scipy.stats as stats
-bin_size = 3
-k = int(bin_size-1 / 2)
-d2 = stats.binned_statistic(deltas, deltas, bins=100)[0]
-
-def moving_avg(data, periods=5):
-    weights = np.ones(periods) / periods
-    return np.convolve(data, weights, mode='valid')
-
-ma = moving_avg(deltas)
-plt.plot(ma)
-plt.show()
-    
-
-
-# In[926]:
 
 
 # Test Suite
