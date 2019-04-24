@@ -65,7 +65,7 @@ numEvents = 0;
 warmedUp = False;
 currMavg = [];
 mAvgTotal = [];
-# Populates our event list with inital events. 
+# Populates our event list with inital events.
 # There is a chance our simulation is short-lived or very long depending on these initial events
 def getHistoricalEvents():
     global events
@@ -75,7 +75,7 @@ def getHistoricalEvents():
 
     with open('../data/trajectories0.json') as json_data:   #Sample of total data
         events = json.load(json_data)
-    '''    
+    '''
     with open('../data/trajectories1.json') as json_data:
         events.update(json.load(json_data))
     '''
@@ -494,7 +494,7 @@ def main():
     plot.title("Moving Average of Mean Travel Time")
     plot.legend()
     plot.show()
-    
+
     plot.hist(carTravelTimes, bins=15, alpha=0.5, edgecolor='#E6E6E6', color='#EE6666')
     plot.axis([40,200, None, None])
     plot.xlabel('Car Travel Times (seconds)')
@@ -519,4 +519,7 @@ def runSimulation():
         executeEvent(next_item);                                 #Update state variables and counters and generate future events
     currentTime = START_TIME;
     FEL = [];
-main()
+
+
+if __name__ == "__main__":
+    main()
