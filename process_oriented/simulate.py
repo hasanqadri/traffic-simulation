@@ -68,13 +68,13 @@ def initialize():
     init_interarrival_times()
     init_signals()
 
+
     # Now, add a single VehicleProcess based on the timings.
     arrival_time = get_random_interarrival_time()
     VehicleProcess(fel, arrival_time)  # Adds self to FEL.
 
     logger.debug("FEL size after initialization: {}".format(fel.size()))
     logger.debug(fel.data)
-
 
 
 def main():
@@ -95,6 +95,7 @@ def main():
         if sim_time < MAXTIME and (np.random.random() < 0.05):  # With 5% chance
             logger.debug("Adding new vehicle")
             added += 1
+
             arrival_time = get_random_interarrival_time()
             VehicleProcess(fel, arrival_time)  # Adds self to FEL.
 
