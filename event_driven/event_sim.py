@@ -1,20 +1,16 @@
 from __future__ import division
 from heapq import heappush, heappop
 import time
+
 #Graphing and Analysis imports
 import numpy as np
-#import scipy
-#import scipy.stats as stats
 import math
 import random
+
 #Reading JSON file imports (Converted CSV to JSON in preprocessing)
 import json
 import matplotlib.pyplot as plt
 import scipy.stats
-
-import seaborn as sns; sns.set()
-
-import time
 
 #Initializing simulation
 FEL = [];
@@ -471,54 +467,45 @@ def main():
     t1 = time.time();
     wt1 = time.time();
     print("Runtime: " + str(t1 - t0) + " seconds")
-    # print('Average number of Cars: ' + str(numCars/numIterations))
-    # print('Total numbr of cars: ' + str(numCars))
     print('Size of carTravelTimes: ' + str(len(carTravelTimes)))
-    # print('Average number of Right Turns: ' + str(rightTurn/numIterations))
-    # print('Average number of Left Turns: ' + str(leftTurn/numIterations))
     print('Mean travel times: ' + str(np.mean(carTravelTimes)) + ' seconds')
     print('Stdev travel times: ' + str(np.std(carTravelTimes)) + ' seconds')
     print('Mean travel time 95% Confidence Interval: ' + str(mean_confidence_interval(carTravelTimes)) + ' seconds')
-    # print('Variance Car travel times: ' + str(np.var(carTravelTimes)) + ' seconds')
-    # print('Mean of car travel times turning at 10th: ' + str(np.mean(carTravelTimes10)) + ' seconds')
-    # print('Mean of car travel times turning at 11th: ' + str(np.mean(carTravelTimes11)) + ' seconds')
-    # print('Mean of car travel times turning at 12th: ' + str(np.mean(carTravelTimes12)) + ' seconds')
-    # print('Mean of car travel times turning at 14th: ' + str(np.mean(carTravelTimes14)) + ' seconds')
 
     #The below commented code generates a steady-state graph for the moving average.
     # After running it, it looks like after 15 of the initial cars it stabilizes, so I use this going forward.
-    mavg = compute_mavg(carTravelTimes)
-    xs = range(len(mavg))
+    def plotting():
+        mavg = compute_mavg(carTravelTimes)
+        xs = range(len(mavg))
+        fig = plt.figure(figsize=(10, 6), dpi=100)
+        plt.plot(xs, mavg, label="Moving Average of Travel Time")
+        # plt.axvline(x=15, color="red", label="Cutoff")
+        plt.xlabel("Samples taken")
+        plt.ylabel("Mean Travel Time of Samples (s)")
+        plt.title("Moving Average of Mean Travel Time")
+        plt.legend()
 
+        fig.savefig("images/mavg30.png")
+        # plt.show()
 
-    fig = plt.figure(figsize=(10, 6), dpi=100)
+        fig = plt.figure(figsize=(10, 6), dpi=100)
+        plt.hist(carTravelTimes, bins=15, alpha=0.5)
+        # plt.axis([40,200, None, None])
+        plt.xlabel('Car Travel Times (seconds)')
+        plt.ylabel('Count')
 
-    plt.plot(xs, mavg, label="Moving Average of Travel Time")
-    # plt.axvline(x=15, color="red", label="Cutoff")
-    plt.xlabel("Samples taken")
-    plt.ylabel("Mean Travel Time of Samples (s)")
-    plt.title("Moving Average of Mean Travel Time")
-    plt.legend()
+        fig.savefig("images/travel_times_hist30.png")
+        # plt.show()
 
-    fig.savefig("images/mavg30.png")
-    # plt.show()
+        fig = plt.figure(figsize=(10, 6), dpi=100)
+        plt.hist(arrivalTimes, bins=20, alpha=0.5)
+        #axis([xmin,xmax,ymin,ymax])
+        plt.xlabel('Interarrival Times')
+        plt.ylabel('Count')
 
-    fig = plt.figure(figsize=(10, 6), dpi=100)
-    plt.hist(carTravelTimes, bins=15, alpha=0.5)
-    # plt.axis([40,200, None, None])
-    plt.xlabel('Car Travel Times (seconds)')
-    plt.ylabel('Count')
+        fig.savefig("images/interarrival_times30.png")
 
-    fig.savefig("images/travel_times_hist30.png")
-    # plt.show()
-
-    fig = plt.figure(figsize=(10, 6), dpi=100)
-    plt.hist(arrivalTimes, bins=20, alpha=0.5)
-    #axis([xmin,xmax,ymin,ymax])
-    plt.xlabel('Interarrival Times')
-    plt.ylabel('Count')
-
-    fig.savefig("images/interarrival_times30.png")
+    # plotting()
     # plt.show()
 
 #Our simulation engine
@@ -527,19 +514,13 @@ def runSimulation():
     global currentTime;
     global START_TIME
 
-    start = time.time()
-
-    while currentTime < START_TIME + 30000000:
+    while currentTime < START_TIME + 1E6:
         next_item = heappop(FEL);                                #Get next event
         #print(next_item)
-        currentTime = next_item[0] #Advance simulation time
-        executeEvent(next_item);                                 #Update state variables and counters and generate future events
+        currentTime = next_item[0]  #Advance simulation time
+        executeEvent(next_item)     #Update state variables and counters and generate future events
     currentTime = START_TIME;
     FEL = [];
-
-    end = time.time()
-
-    # print("TIME ELAPSED: {:.3f}s".format(end - start))
 
 
 if __name__ == "__main__":
