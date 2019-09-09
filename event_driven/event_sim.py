@@ -440,8 +440,6 @@ def compute_mavg(travel_times):
         mavg.append(np.mean(travel_times[:i]))
 
     return mavg
-
-
 # ----------------- End Helper Methods ---------------------
 #Start Program
 def main():

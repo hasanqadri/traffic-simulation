@@ -1,0 +1,69 @@
+
+€python:S1542Ø"[Rename function "checkLeftRightTurn" to match the regular expression ^[a-z_][a-z0-9_]{2,}$.(îØŠ•üÿÿÿÿ8Ì¤–è¤-
+tpython:S3776‰"TRefactor this function to reduce its Cognitive Complexity from 18 to the 15 allowed.(‹ùõ£8¾œŞç¤-
+}python:S117½"YRename this local variable "leftTurn" to match the regular expression ^[_a-z][a-z0-9_]*$.(ÆÔÆüÿÿÿÿ8Ì¤–è¤-
+€python:S1542]"\Rename function "getInterArrivalTime" to match the regular expression ^[a-z_][a-z0-9_]{2,}$.(°¬Ä“üÿÿÿÿ8¾œŞç¤-
+upython:S1542‰"URename function "executeEvent" to match the regular expression ^[a-z_][a-z0-9_]{2,}$.(‹ùõ£8¾œŞç¤-
+python:S1542Ç"ZRename function "tenthIntersection" to match the regular expression ^[a-z_][a-z0-9_]{2,}$.(à÷Ùöÿÿÿÿÿ8Ì¤–è¤-
+{python:S117 "\Rename this local variable "arrivalTime" to match the regular expression ^[_a-z][a-z0-9_]*$.(‹´×›8Ì¤–è¤-
+{python:S117Š"\Rename this local variable "curr12Light" to match the regular expression ^[_a-z][a-z0-9_]*$.(àğ¡8Ì¤–è¤-
+€python:S117a"bRename this local variable "interArrivalTimes" to match the regular expression ^[_a-z][a-z0-9_]*$.(…Æû·8¾œŞç¤-
+python:S117£"`Rename this local variable "curr14LeftLight" to match the regular expression ^[_a-z][a-z0-9_]*$.(É¨áè8Ì¤–è¤-
+python:S117‡"[Rename this local variable "turnResult" to match the regular expression ^[_a-z][a-z0-9_]*$.(Î»²âûÿÿÿÿ8Ì¤–è¤-
+python:S1542’"\Rename function "twelfthIntersection" to match the regular expression ^[a-z_][a-z0-9_]{2,}$.(ï­ÛÃıÿÿÿÿ8Ì¤–è¤-
+vpython:S1542¦"WRename function "twelfthSegment" to match the regular expression ^[a-z_][a-z0-9_]{2,}$.(Ø“„K8Ì¤–è¤-
+python:S117§"[Rename this local variable "turnResult" to match the regular expression ^[_a-z][a-z0-9_]*$.(Î»²âûÿÿÿÿ8Ì¤–è¤-
+python:S1542µ"_Rename function "fourteenthIntersection" to match the regular expression ^[a-z_][a-z0-9_]{2,}$.(”‚œ÷8Ì¤–è¤-
+„python:S117„"`Rename this local variable "rightTurnChance" to match the regular expression ^[_a-z][a-z0-9_]*$.(²© ©şÿÿÿÿ8¾œŞç¤-
+ypython:S117Å"ZRename this local variable "rightTurn" to match the regular expression ^[_a-z][a-z0-9_]*$.(©ß¢¸8Ì¤–è¤-
+xpython:S117Ş"YRename this local variable "tenDelay" to match the regular expression ^[_a-z][a-z0-9_]*$.(”ùşŠ8Ì¤–è¤-
+python:S117p"dRename this local variable "intersectionCounter" to match the regular expression ^[_a-z][a-z0-9_]*$.(³ÄØ8¾œŞç¤-
+‚python:S117w"_Rename this local variable "leftTurnChance" to match the regular expression ^[_a-z][a-z0-9_]*$.(¸¿ØŞşÿÿÿÿ8¾œŞç¤-
+}python:S1542†"XRename function "eleventhSegment" to match the regular expression ^[a-z_][a-z0-9_]{2,}$.(Šë°Èúÿÿÿÿ8Ì¤–è¤-
+}python:S1542ò"]Rename function "eleventhIntersection" to match the regular expression ^[a-z_][a-z0-9_]{2,}$.(Ä¼Ï®8Ì¤–è¤-
+python:S117}"dRename this local variable "intersectionCounter" to match the regular expression ^[_a-z][a-z0-9_]*$.(³ÄØ8¾œŞç¤-
+}python:S117Ì"^Rename this local variable "fourteenDelay" to match the regular expression ^[_a-z][a-z0-9_]*$.(ıƒÙ8Ì¤–è¤-
+ypython:S117ø"ZRename this local variable "rightTurn" to match the regular expression ^[_a-z][a-z0-9_]*$.(©ß¢¸8Ì¤–è¤-
+xpython:S1542{"ZRename function "getLeftTurnChance" to match the regular expression ^[a-z_][a-z0-9_]{2,}$.(Œ¨¦A8¾œŞç¤-
+ƒpython:S1542ï"^Rename function "switchTenthLeftLights" to match the regular expression ^[a-z_][a-z0-9_]{2,}$.(·Ñ´‹ÿÿÿÿÿ8Ì¤–è¤-
+Lpython:S1481Ã"'Remove the unused local variable "wt0".(õØìıÿÿÿÿ8Ì¤–è¤-
+}python:S117q"`Rename this local variable "leftTurnCounter" to match the regular expression ^[_a-z][a-z0-9_]*$.(™œ»Y8¾œŞç¤-
+zpython:S117V"\Rename this local variable "arrivalTime" to match the regular expression ^[_a-z][a-z0-9_]*$.(‹´×›8¾œŞç¤-
+Gpython:S1481Ñ"'Remove the unused local variable "wt1".(î÷±Ó8Ì¤–è¤-
+}python:S1542û"]Rename function "switchEleventhLights" to match the regular expression ^[a-z_][a-z0-9_]{2,}$.(ã¬¨ô8Ì¤–è¤-
+vpython:S1542Ù"VRename function "runSimulation" to match the regular expression ^[a-z_][a-z0-9_]{2,}$.(Ì¬œï8Ì¤–è¤-
+€python:S117–"\Rename this local variable "curr14Light" to match the regular expression ^[_a-z][a-z0-9_]*$.(Í¹ÃÖüÿÿÿÿ8Ì¤–è¤-
+Vpython:S1481Í"1Remove the unused local variable "numCarsWarmup".(¨Ú°øÿÿÿÿÿ8Ì¤–è¤-
+wpython:S117O"ZRename this local variable "numEvents" to match the regular expression ^[_a-z][a-z0-9_]*$.(¹ƒ 8¾œŞç¤-
+‚python:S117Í"^Rename this local variable "numCarsWarmup" to match the regular expression ^[_a-z][a-z0-9_]*$.(¨Ú°øÿÿÿÿÿ8Ì¤–è¤-
+python:S1542“"_Rename function "switchFourteenthLights" to match the regular expression ^[a-z_][a-z0-9_]{2,}$.(Ë¸©8Ì¤–è¤-
+python:S1542ã"ZRename function "switchTenthLights" to match the regular expression ^[a-z_][a-z0-9_]{2,}$.(âôßôøÿÿÿÿ8Ì¤–è¤-
+{python:S117ÿ"\Rename this local variable "elevenDelay" to match the regular expression ^[_a-z][a-z0-9_]*$.(¨î®Å8Ì¤–è¤-
+python:S117¸"[Rename this local variable "turnResult" to match the regular expression ^[_a-z][a-z0-9_]*$.(Î»²âûÿÿÿÿ8Ì¤–è¤-
+{python:S117ş"\Rename this local variable "curr11Light" to match the regular expression ^[_a-z][a-z0-9_]*$.(–ÂÁŒ8Ì¤–è¤-
+{python:S1542C"\Rename function "getHistoricalEvents" to match the regular expression ^[a-z_][a-z0-9_]{2,}$.( ²äğ8¾œŞç¤-
+ypython:S117×"ZRename this local variable "rightTurn" to match the regular expression ^[_a-z][a-z0-9_]*$.(©ß¢¸8Ì¤–è¤-
+wpython:S117"XRename this local variable "numCars" to match the regular expression ^[_a-z][a-z0-9_]*$.(·Óëõ8Ì¤–è¤-
+xpython:S117"YRename this local variable "warmedUp" to match the regular expression ^[_a-z][a-z0-9_]*$.( Ú°ë8Ì¤–è¤-
+zpython:S1542·"URename function "ninthSegment" to match the regular expression ^[a-z_][a-z0-9_]{2,}$.(Êåî²ıÿÿÿÿ8Ì¤–è¤-
+Kpython:S1481O"-Remove the unused local variable "numEvents".(¹ƒ 8¾œŞç¤-
+|python:S117Ó"]Rename this local variable "tenLeftDelay" to match the regular expression ^[_a-z][a-z0-9_]*$.(¯¸Ñü8Ì¤–è¤-
+‚python:S117Ÿ"^Rename this local variable "numCarsWarmup" to match the regular expression ^[_a-z][a-z0-9_]*$.(°úËøÿÿÿÿ8Ì¤–è¤-
+ypython:S117˜"ZRename this local variable "rightTurn" to match the regular expression ^[_a-z][a-z0-9_]*$.(©ß¢¸8Ì¤–è¤-
+‚python:S117Æ"^Rename this local variable "numIterations" to match the regular expression ^[_a-z][a-z0-9_]*$.(ä¾ã´ùÿÿÿÿ8Ì¤–è¤-
+}python:S117Ì"YRename this local variable "warmedUp" to match the regular expression ^[_a-z][a-z0-9_]*$.(ú»¹ùÿÿÿÿÿ8Ì¤–è¤-
+python:S117~"aRename this local variable "rightTurnCounter" to match the regular expression ^[_a-z][a-z0-9_]*$.(–Ôè¦8¾œŞç¤-
+zpython:S117Ÿ"\Rename this local variable "twelveDelay" to match the regular expression ^[_a-z][a-z0-9_]*$.(À”=8Ì¤–è¤-
+†python:S117Á"bRename this local variable "fourteenLeftDelay" to match the regular expression ^[_a-z][a-z0-9_]*$.(åëôŒşÿÿÿÿ8Ì¤–è¤-
+{python:S117á"\Rename this local variable "currentTime" to match the regular expression ^[_a-z][a-z0-9_]*$.(·Íè 8±™è¤-
+zpython:S1542n"[Rename function "getRightTurnChance" to match the regular expression ^[a-z_][a-z0-9_]{2,}$.(Ò©Åñ8¾œŞç¤-
+‚python:S117W"_Rename this local variable "leftTurnChance" to match the regular expression ^[_a-z][a-z0-9_]*$.(Àô¬¾şÿÿÿÿ8¾œŞç¤-
+ƒpython:S117X"`Rename this local variable "rightTurnChance" to match the regular expression ^[_a-z][a-z0-9_]*$.(ÈŒÆ˜üÿÿÿÿ8¾œŞç¤-
+|python:S1542‡"\Rename function "switchTwelfthLights" to match the regular expression ^[a-z_][a-z0-9_]{2,}$.(ÈŠ ç8Ì¤–è¤-
+python:S1542Ó"ZRename function "fourteenthSegment" to match the regular expression ^[a-z_][a-z0-9_]{2,}$.(¥´Äƒÿÿÿÿÿ8Ì¤–è¤-
+python:S117ç"[Rename this local variable "turnResult" to match the regular expression ^[_a-z][a-z0-9_]*$.(Î»²âûÿÿÿÿ8Ì¤–è¤-
+€python:S117æ"\Rename this local variable "curr10Light" to match the regular expression ^[_a-z][a-z0-9_]*$.(Ìõ¹Éıÿÿÿÿ8Ì¤–è¤-
+ƒpython:S1542 "cRename function "switchFourteenthLeftLights" to match the regular expression ^[a-z_][a-z0-9_]{2,}$.(Öæ“–8Ì¤–è¤-
+upython:S1542æ"URename function "tenthSegment" to match the regular expression ^[a-z_][a-z0-9_]{2,}$.(éÇ¤’8Ì¤–è¤-
+python:S117ò"`Rename this local variable "curr10LeftLight" to match the regular expression ^[_a-z][a-z0-9_]*$.(¹ÉŠ™8Ì¤–è¤-
+}python:S117Ï"YRename this local variable "leftTurn" to match the regular expression ^[_a-z][a-z0-9_]*$.(ÆÔÆüÿÿÿÿ8Ì¤–è¤-

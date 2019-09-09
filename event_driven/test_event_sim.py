@@ -17,12 +17,8 @@ class TestCalc(unittest.TestCase):
 	def test_getInterArrivalTime(self):
 		minInterArrivalTime = 1163030800;
 		maxInterArrivalTime = 1164063200;
-
-		x = 0;
-		while x < 10000:
-			self.assertGreater(event_sim.getInterArrivalTime(), minInterArrivalTime)
-			self.assertLessEqual(event_sim.getInterArrivalTime(), maxInterArrivalTime)
-			x = x + 1
+		self.assertGreater(event_sim.getInterArrivalTime(), minInterArrivalTime)
+		self.assertLessEqual(event_sim.getInterArrivalTime(), maxInterArrivalTime)
 
 	#Checks if the inter arrival time that is generated is reasonable based on the trajectory data
 	def test_rightTurnChance(self):
