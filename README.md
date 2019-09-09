@@ -1,18 +1,9 @@
-# Project 2: Modeling & Simulation Life Cycle
+# Event Driven Simulation
 
+## Author: Hasan Qadri
 
-## SETUP
-First, you will need [Git Large File Storage](https://git-lfs.github.com). This
-[tutorial](https://github.com/git-lfs/git-lfs/wiki/Tutorial) gives you a better
-idea of how Git LFS works.
+The model and engine are both within the event_sim file. The simulation prints the events as they occur
+and then stats on the simulation afterwards. 
 
-Once that's done, clone the repo as usual and initialize LFS.
-```bash
-git clone git@github.gatech.edu:msakhi3/modsim_life_cycle.git
-git lfs install
-```
-
-## ORGANIZATION
-Each of the three approaches, (1) Cellular Automata, (2) Event-Driven Queues,
-and (3) Activity Scanning Queues have a respective folder in the project root
-directory.
+To run the simulation type 'python event_sim.py' 
+To run the unit tests for the simulation type 'python test_event_sim.py'
